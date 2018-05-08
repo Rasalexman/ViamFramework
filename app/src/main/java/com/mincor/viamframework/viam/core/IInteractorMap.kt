@@ -18,7 +18,7 @@ interface IInteractorMap {
     /**
      *
      */
-    fun execute()
+    fun execute(interactorClass: Class<*>, payload: Any?, payloadClass:Class<*>?, named:String)
 
 
     /**

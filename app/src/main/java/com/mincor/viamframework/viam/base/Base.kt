@@ -93,11 +93,11 @@ object Base {
          * One by one to get superClasses
          * Then the child nodes of the associated to the main XML
          */
-        for (i in superClasses.indices) {
+        superClasses.forEach {
             val extendsClassXml = XML()
             xml.child.add(extendsClassXml)
             extendsClassXml.name = "extendsClass"
-            extendsClassXml.prototype["type"] = superClasses[i].name
+            extendsClassXml.prototype["type"] = it.name
             extendsClassXml.parent = xml
         }
 
@@ -116,24 +116,23 @@ object Base {
          * One by one to get superClasses
          * Then the child nodes of the associated to the main XML
          */
-        for (i in superClasses.indices) {
+        superClasses.forEach {
             val extendsClassXml = XML()
             factoryXml.child.add(extendsClassXml)
             extendsClassXml.name = "extendsClass"
-            extendsClassXml.prototype["type"] = superClasses[i].name
+            extendsClassXml.prototype["type"] = it.name
             extendsClassXml.parent = factoryXml
-
         }
 
         /*
          * One by one to get implementsInterfaces
          * Then the child nodes of the associated to the main XML
          */
-        for (i in implementsInterfaces.indices) {
+        implementsInterfaces.forEach {
             val interfaceXml = XML()
             factoryXml.child.add(interfaceXml)
             interfaceXml.name = "implementsInterface"
-            interfaceXml.prototype["type"] = implementsInterfaces[i].name
+            interfaceXml.prototype["type"] = it.name
             interfaceXml.parent = factoryXml
         }
 

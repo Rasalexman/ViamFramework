@@ -1,6 +1,8 @@
 package com.mincor.viamframework.viam.base
 
 import com.mincor.viamframework.viam.core.*
+import com.mincor.viamframework.viam.base.events.Event
+
 
 typealias ListenersClassMap = MutableMap<String, IListener?>
 typealias EventClassMap = MutableMap<String, ListenersClassMap?>
@@ -47,8 +49,25 @@ class InteractorMap(
     }
 
 
-    override fun execute() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun execute(interactorClass: Class<*>, payload: Any?, payloadClass: Class<*>?, named: String) {
+        this.verifyInteractorClass(interactorClass)
+
+        if (payload != null || payloadClass != null) {
+            val tempPayloadClass = payloadClass ?: this.reflector?.getClass(payload)
+            if (Event::class.java.isInstance(payload) && tempPayloadClass != Event::class.java) {
+                this.injector?.mapValue(Event::class.java, payload, "")
+            }
+            this.injector?.mapValue(tempPayloadClass, payload, named)
+        }
+        val command = this.injector?.instantiate(interactorClass)
+        if (payload != null || payloadClass != null) {
+            if (Event::class.java.isInstance(payload) && payloadClass != Event::class.java) {
+                this.injector?.unmap(Event::class.java, "")
+            }
+            this.injector?.unmap(payloadClass, named)
+        }
+        // TODO: MAKE COMMAND IMPLEMENTATION
+       // (command as Command).execute()
     }
 
     override fun mapEvent(eventName: String, interactorClass: Class<*>, eventClass: Class<*>?, oneShot: Boolean) {

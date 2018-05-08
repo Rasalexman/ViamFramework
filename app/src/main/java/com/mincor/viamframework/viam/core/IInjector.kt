@@ -2,25 +2,25 @@ package com.mincor.viamframework.viam.core
 
 interface IInjector {
 
-    fun <T:Class<*>> mapValue(mapped:T, valueToUse:Any, named:String):Any
+    fun mapValue(mapped:Class<*>?, valueToUse:Any?, named:String):Any
 
-    fun <T:Class<*>, V:Any> mapClass(mapped:T, instantiated:V, named:String):Any
+    fun mapClass(mapped:Class<*>, instantiated:Any, named:String):Any
 
-    fun <T:Class<*>> mapSigleton(mapped:T, named:String):Any
+    fun mapSigleton(mapped:Class<*>, named:String):Any
 
-    fun <T:Class<*>, V:Any> mapSingletonOf(mapped:T, singleOf:V, named:String):Any
+    fun mapSingletonOf(mapped:Class<*>, singleOf:Any, named:String):Any
 
-    fun <T:Class<*>> mapRule(mapped:T, useRule:Any, named:String):Any
+    fun mapRule(mapped:Class<*>, useRule:Any, named:String):Any
 
     fun injectInto(target: Any)
 
-    fun <T:Class<*>> instantiate(clazz: T): Any
+    fun instantiate(clazz: Class<*>): Any
 
-    fun <T:Class<*>> getInstance(clazz: T, named: String): Any
+    fun getInstance(clazz: Class<*>, named: String): Any
 
     fun createChild(): IInjector
 
-    fun <T:Class<*>> unmap(clazz: T, named: String)
+    fun unmap(clazz: Class<*>?, named: String)
 
-    fun <T:Class<*>> hasMapping(clazz: T, named: String): Boolean
+    fun hasMapping(clazz: Class<*>, named: String): Boolean
 }
