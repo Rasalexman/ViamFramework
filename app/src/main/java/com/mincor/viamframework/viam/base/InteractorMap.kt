@@ -133,8 +133,8 @@ class InteractorMap(
     /**
      * MapEventListener Event Handler
      *
-     * @param event              The `Event` Event类型
-     * @param commandClass       The Class to construct and execute 类来构建和执行
+     * @param event              The `Event` Event
+     * @param commandClass       The Class to construct and execute
      * @param oneshot            Should this command mapping be removed after execution?
      * @param originalEventClass originalEventClass
      * @return `true` if the event was routed to a Command and the
