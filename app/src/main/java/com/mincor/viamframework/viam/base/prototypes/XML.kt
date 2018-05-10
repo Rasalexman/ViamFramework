@@ -113,13 +113,7 @@ class XML {
         val result = XMLList()
         if (ArrayList::class.java.isInstance(this.child)) {
             val childList = this.child
-            childList.filter { it.name == name }.map { result }
-
-            /*for (i in childList.indices) {
-                if (childList[i].name == name) {
-                    result.add(childList[i])
-                }
-            }*/
+            childList.filter { it.name == name }.mapTo(result, { it })
         }
         return result
     }
@@ -136,12 +130,7 @@ class XML {
         val result = XMLList()
         if (ArrayList::class.java.isInstance(this.child)) {
             val childList = this.child
-            childList.filter { it.prototype.containsKey(key) }.map { result }
-            /*for (i in childList.indices) {
-                if (childList[i].prototype.containsKey(key)) {
-                    result.add(childList[i])
-                }
-            }*/
+            childList.filter { it.prototype.containsKey(key) }.mapTo(result, { it })
         }
         return result
     }
@@ -160,12 +149,7 @@ class XML {
         val result = XMLList()
         if (ArrayList::class.java.isInstance(this.child)) {
             val childList = this.child
-            childList.filter { it.prototype.containsKey(key) && it.name == this.name }.map { result }
-            /*for (i in childList.indices) {
-                if (childList[i].name == name && childList[i].prototype.containsKey(key)) {
-                    result.add(childList[i])
-                }
-            }*/
+            childList.filter { it.prototype.containsKey(key) && it.name == name }.mapTo(result, { it })
         }
         return result
     }
@@ -184,13 +168,7 @@ class XML {
         val result = XMLList()
         if (ArrayList::class.java.isInstance(this.child)) {
             val childList = this.child
-            childList.filter { it.prototype.containsKey(key) && it.prototype[key] == value }.map { result }
-
-            /*for (i in childList.indices) {
-                if (childList[i].prototype.containsKey(key) && childList[i].prototype[key] == value) {
-                    result.add(childList[i])
-                }
-            }*/
+            childList.filter { it.prototype.containsKey(key) && it.prototype[key] == value }.mapTo(result, { it })
         }
         return result
     }
@@ -213,18 +191,8 @@ class XML {
             childList.filter {
                 it.prototype.containsKey(key)
                     && it.prototype[key] == value
-                    && it.name == this.name}.map { result }
-
-            /*for (i in childList.indices) {
-                if (childList[i].name == name
-                        && childList[i].prototype.containsKey(key)
-                        && childList[i].prototype[key] == value) {
-                    result.add(childList[i])
-                }
-            }*/
+                    && it.name == name}.mapTo(result, { it })
         }
         return result
     }
-
-
 }

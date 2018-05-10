@@ -1,12 +1,13 @@
 package com.mincor.viamframework.viam.core
 
-interface IViewMap : IContentViewHolder {
+interface IViewMap : IContextViewHolder {
 
     fun mapPackage(packageName: String)
     fun unmapPackage(packageName: String)
     fun hasPackage(packageName: String): Boolean
 
-    fun <T:Class<*>>mapType(type: T)
-    fun <T:Class<*>> unmapType(type: T)
+    fun mapType(type: Class<*>)
+    fun unmapType(type: Class<*>)
+    fun hasType(type: Class<*>): Boolean
 
 }

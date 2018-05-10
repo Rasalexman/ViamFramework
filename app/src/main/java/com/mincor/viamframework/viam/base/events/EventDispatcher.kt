@@ -19,12 +19,13 @@ class EventDispatcher : IEventDispatcher {
         listeners.add(listener)
     }
 
-    override fun removeEventListener(type: String, listener: IListener) {
-        listeners.filter { it.type == type && it.name == listener.name }.forEach { listeners.remove(it) }
+    override fun removeEventListener(type: String?, listener: IListener?) {
+        listeners.filter { it.type == type && it.name == listener?.name }.forEach { listeners.remove(it) }
     }
 
-    override fun dispatchEvent(event: Event) {
+    override fun dispatchEvent(event: Event):Boolean {
         listeners.filter { it.type == event.type }.forEach { it.onEventHandle(event) }
+        return true
     }
 
     override fun hasEventListener(type: String):Boolean = listeners.any { it.type == type }

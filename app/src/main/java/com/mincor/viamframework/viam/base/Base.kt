@@ -2,6 +2,11 @@ package com.mincor.viamframework.viam.base
 
 import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.base.prototypes.XMLList
+import com.mincor.viamframework.viam.components.MyDelegate
+import java.lang.reflect.Field
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.declaredMemberProperties
 
 object Base {
 
@@ -75,8 +80,9 @@ object Base {
      */
     fun describeType(clazz: Class<*>): XML {
         val xml = XML()
+        val name = clazz.name?:""
         xml.name = "type"
-        xml.prototype["name"] = clazz.name
+        xml.prototype["name"] = name
         xml.child = XMLList()
         /********************************* Base Class  */
         val superClasses = getSuperClasses(clazz)
@@ -150,12 +156,12 @@ object Base {
             constructorXml.name = "constructor"
             constructorXml.parent = factoryXml
             val parameterTypes = constructor.parameterTypes
-            for (j in parameterTypes.indices) {
+            parameterTypes.forEachIndexed { i, param->
                 val parameterXml = XML()
                 constructorXml.child.add(parameterXml)
                 parameterXml.name = "parameter"
-                parameterXml.prototype["index"] = j.toString() + ""
-                parameterXml.prototype["type"] = parameterTypes[j].name
+                parameterXml.prototype["index"] = "$i"
+                parameterXml.prototype["type"] = param.name
                 parameterXml.parent = constructorXml
             }
         }
@@ -171,8 +177,14 @@ object Base {
             fieldXml.prototype["name"] = field.name
             fieldXml.prototype["type"] = field.type.name
             fieldXml.parent = factoryXml
-            val ans = field.annotations
+            val ans = field.annotations.toList()
 
+            val delegating = KProperty::class.java.name == field.type.canonicalName
+            println("is delegatin ${KProperty::class.java.name} ${field.type.canonicalName} - $delegating")
+            val delegates = arrayListOf<Field>()
+            if(delegating){
+                delegates.add(field)
+            }
             /*
              * One by one to get annotations
              * Then the associated to the fields of child nodes
@@ -181,7 +193,7 @@ object Base {
                 val metadataXml = XML()
                 fieldXml.child.add(metadataXml)
                 metadataXml.name = "metadata"
-                metadataXml.prototype["name"] = an.annotationClass.simpleName?:an.toString()
+                metadataXml.prototype["name"] = an.annotationClass.qualifiedName?:""
                 metadataXml.parent = fieldXml
             }
 
@@ -196,10 +208,8 @@ object Base {
             factoryXml.child.add(methodXml)
             methodXml.name = "method"
             methodXml.prototype["name"] = method.name
-            methodXml.prototype["declaredBy"] = method
-                    .declaringClass.name
-            methodXml.prototype["returnType"] = method.returnType
-                    .name
+            methodXml.prototype["declaredBy"] = method.declaringClass.name
+            methodXml.prototype["returnType"] = method.returnType.name
             methodXml.parent = factoryXml
             val parameterTypes = method.parameterTypes
             val ans = method.annotations
@@ -208,7 +218,7 @@ object Base {
              * One by one to get annotations
              * Then associated with the methods of child nodes
              */
-            for (an in ans) {
+            ans.forEach { an->
                 val metadataXml = XML()
                 methodXml.children().add(metadataXml)
                 metadataXml.name = "metadata"

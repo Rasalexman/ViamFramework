@@ -1,6 +1,6 @@
 package com.mincor.viamframework.viam.core
 
-interface IContentViewHolder {
+interface IContextViewHolder {
     var contextView:Any?
     var isEnabled:Boolean
 }

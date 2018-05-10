@@ -1,3 +1,5 @@
 package com.mincor.viamframework.viam.base.events
 
-data class Event(val type:String, val target:Any?, val cancelable:Boolean = false)
+import android.view.View
+
+data class Event(val type:String, val target:View? = null, val cancelable:Boolean = false)

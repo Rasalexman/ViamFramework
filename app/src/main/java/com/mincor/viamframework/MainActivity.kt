@@ -1,9 +1,9 @@
 package com.mincor.viamframework
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.mincor.viamframework.viam.views.ViamActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ViamActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

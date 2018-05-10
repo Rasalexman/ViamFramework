@@ -24,12 +24,7 @@ class XMLList : ArrayList<XML>() {
      */
     fun findXMLListByName(name: String): XMLList {
         val result = XMLList()
-        this.filter { it.name == name }.map { result }
-        /*for (i in 0 until this.size) {
-            if (this[i].name == name) {
-                result.add(this[i])
-            }
-        }*/
+        this.filter { it.name == name }.mapTo(result, { it })
         return result
     }
 
@@ -43,12 +38,7 @@ class XMLList : ArrayList<XML>() {
      */
     fun findXMLListByKeyValue(key: String, value: String): XMLList {
         val result = XMLList()
-        this.filter { it.getValue(key) == value }.map { result }
-        /*for (i in 0 until this.size) {
-            if (this[i].getValue(key) == value) {
-                result.add(this[i])
-            }
-        }*/
+        this.filter { it.getValue(key) == value }.mapTo(result, { it })
         return result
     }
 
