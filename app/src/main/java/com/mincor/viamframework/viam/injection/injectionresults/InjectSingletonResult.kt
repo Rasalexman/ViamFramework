@@ -17,12 +17,13 @@
 package com.mincor.viamframework.viam.injection.injectionresults
 
 import com.mincor.viamframework.viam.injection.Injector
+import kotlin.reflect.KClass
 
 /**
  * Description：InjectSingletonResult
  * Created by：CaMnter
  */
-class InjectSingletonResult(private val m_responseType: Class<*>) : InjectionResult() {
+class InjectSingletonResult(private val m_responseType: KKClass<*>) : InjectionResult() {
     private var m_response: Any? = null
 
     override fun getResponse(injector: Injector): Any {

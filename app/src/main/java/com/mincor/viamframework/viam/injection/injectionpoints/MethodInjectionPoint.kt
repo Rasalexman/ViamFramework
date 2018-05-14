@@ -23,8 +23,8 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
         val parameters = this.gatherParameterValues(target, injector)
         val method: Method
         try {
-            val typeList = parameters[0] as List<Class<*>>
-            val typeClasses = arrayOfNulls<Class<*>>(typeList.size)
+            val typeList = parameters[0] as List<KClass<*>>
+            val typeClasses = arrayOfNulls<KClass<*>>(typeList.size)
             typeList.toTypedArray()
             method = target.javaClass.getMethod(this.methodName, *typeClasses)
         } catch (e: NoSuchMethodException) {
@@ -107,7 +107,7 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
      */
     protected fun gatherParameterValues(target: Any, injector: Injector): Array<Any> {
         val parameters = ArrayList<Any>()
-        val types = ArrayList<Class<*>>()
+        val types = ArrayList<KClass<*>>()
         val length = this._parameterInjectionConfigs.size
         for (i in 0 until length) {
             val parameterConfig = this._parameterInjectionConfigs[i] as ParameterInjectionConfig

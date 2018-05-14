@@ -4,6 +4,7 @@ import com.mincor.viamframework.viam.core.*
 import com.mincor.viamframework.viam.base.events.Event
 import com.mincor.viamframework.viam.components.Interactor
 import java.util.*
+import kotlin.reflect.KClass
 
 
 typealias ListenersClassMap = MutableMap<String, IListener?>
@@ -51,32 +52,32 @@ class InteractorMap(
     }
 
 
-    override fun execute(interactorClass: Class<*>, payload: Any?, payloadClass: Class<*>?, named: String) {
+    override fun execute(interactorClass: KClass<*>, payload: Any?, payloadClass: KClass<*>?, named: String) {
         this.verifyInteractorClass(interactorClass)
 
         if (payload != null || payloadClass != null) {
             val tempPayloadClass = payloadClass ?: this.reflector?.getClass(payload!!)
             if (Event::class.java.isInstance(payload) && tempPayloadClass != Event::class.java) {
                 payload?.let {
-                    this.injector?.mapValue(Event::class.java, it, "")
+                    this.injector?.mapValue(Event::class, it, "")
                 }
             }
-            this.injector?.mapValue(tempPayloadClass?:Temp::class.java, payload?:Temp(), named)
+            this.injector?.mapValue(tempPayloadClass, payload?:Temp(), named)
         }
         val interactor = this.injector?.instantiate(interactorClass) as? Interactor
         if (payload != null || payloadClass != null) {
             if (Event::class.java.isInstance(payload) && payloadClass != Event::class.java) {
-                this.injector?.unmap(Event::class.java, "")
+                this.injector?.unmap(Event::class, "")
             }
             this.injector?.unmap(payloadClass, named)
         }
         interactor?.execute()
     }
 
-    override fun mapEvent(eventName: String, interactorClass: Class<*>, eventClass: Class<*>?, oneShot: Boolean) {
+    override fun mapEvent(eventName: String, interactorClass: KClass<*>, eventClass: KClass<*>?, oneShot: Boolean) {
         this.verifyInteractorClass(interactorClass)
 
-        val tempEventClass = eventClass ?: Event::class.java
+        val tempEventClass = eventClass ?: Event::class
         val eventClassMap: EventClassMap = this.eventTypeMap[eventName] ?: hashMapOf()
 
         val callbacksByCommandClass: ListenersClassMap = eventClassMap["${tempEventClass.hashCode()}"]
@@ -91,7 +92,7 @@ class InteractorMap(
         callbacksByCommandClass[interactorKey] = callback
     }
 
-    override fun unmapEvent(eventName: String, interactorClass: Class<*>, eventClass: Class<*>?) {
+    override fun unmapEvent(eventName: String, interactorClass: KClass<*>, eventClass: KClass<*>?) {
         val eventClassMap: EventClassMap = this.eventTypeMap[eventName] ?: return
         val tempEventClass = eventClass ?: Event::class.java
 
@@ -121,10 +122,10 @@ class InteractorMap(
         this.eventTypeMap = HashMap()
     }
 
-    override fun hasEventInteractor(eventName: String, interactorClass: Class<*>, eventClass: Class<*>?): Boolean {
+    override fun hasEventInteractor(eventName: String, interactorClass: KClass<*>, eventClass: KClass<*>?): Boolean {
         val eventClassMap: EventClassMap = this.eventTypeMap[eventName] ?: return false
 
-        val tempEventClass = eventClass ?: Event::class.java
+        val tempEventClass = eventClass ?: Event::class
         val eventKey = "${tempEventClass.hashCode()}"
         val callbacksByCommandClass: ListenersClassMap = eventClassMap[eventKey] ?: return false
 
@@ -140,11 +141,11 @@ class InteractorMap(
      * @param commandClass commandClass
      * throws `ContextError`
      */
-    protected fun verifyInteractorClass(commandClass: Class<*>) {
-        this.verifiedInteractorClasses[commandClass.name]?.let {
+    protected fun verifyInteractorClass(commandClass: KClass<*>) {
+        this.verifiedInteractorClasses[commandClass.java.name]?.let {
             val key = "${commandClass.hashCode()}"
             try {
-                this.verifiedInteractorClasses[key] = commandClass.getMethod("execute").toString()
+                this.verifiedInteractorClasses[key] = commandClass.java.getMethod("execute").toString()
             } catch (e: NoSuchMethodException) {
                 println(e.message)
             }
@@ -165,7 +166,7 @@ class InteractorMap(
      * @return `true` if the event was routed to a Command and the
      * Command was executed, `false` otherwise
      */
-    protected fun routeEventToCommand(event: Event, commandClass: Class<*>, oneshot: Boolean, originalEventClass: Class<*>): Boolean? {
+    protected fun routeEventToCommand(event: Event, commandClass: KClass<*>, oneshot: Boolean, originalEventClass: KClass<*>): Boolean? {
         if (!originalEventClass.isInstance(event))
             return false
         this.execute(commandClass, event, null, "")
@@ -179,7 +180,7 @@ class InteractorMap(
     data class Temp(val temp:String = "")
 
 
-    inner class MapEventListener(override val name: String, override var type: String, private val interactorClass: Class<*>, private val eventClass: Class<*>, private val oneShot: Boolean = true) : Listener(name, type) {
+    inner class MapEventListener(override val name: String, override var type: String, private val interactorClass: KClass<*>, private val eventClass: KClass<*>, private val oneShot: Boolean = true) : Listener(name, type) {
         override fun onEventHandle(event: Event) {
             routeEventToCommand(event, interactorClass, oneShot, eventClass)
         }

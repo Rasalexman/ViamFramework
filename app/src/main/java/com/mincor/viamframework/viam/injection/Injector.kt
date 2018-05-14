@@ -10,6 +10,7 @@ import com.mincor.viamframework.viam.injection.injectionresults.InjectOtherRuleR
 import com.mincor.viamframework.viam.injection.injectionresults.InjectSingletonResult
 import com.mincor.viamframework.viam.injection.injectionresults.InjectValueResult
 import java.util.*
+import kotlin.reflect.KClass
 
 open class Injector(private val m_xmlMetadata: XML?) {
 
@@ -38,37 +39,37 @@ open class Injector(private val m_xmlMetadata: XML?) {
     internal var attendedToInjectees: MutableMap<String, Any>? = WeakHashMap()
         private set
 
-    fun mapValue(whenAskedFor: Class<*>, useValue: Any, named: String): Any {
+    fun mapValue(whenAskedFor: KClass<*>, useValue: Any, named: String): Any {
         val config = this.getMapping(whenAskedFor, named)
         config.setResult(InjectValueResult(useValue))
         return config
     }
 
-    fun mapClass(whenAskedFor: Class<*>, instantiateClass: Class<*>, named: String): Any {
+    fun mapClass(whenAskedFor: KClass<*>, instantiateClass: KClass<*>, named: String): Any {
         val config = this.getMapping(whenAskedFor, named)
         config.setResult(InjectClassResult(instantiateClass))
         return config
     }
 
-    fun mapSigleton(mapped: Class<*>, named: String): Any {
+    fun mapSigleton(mapped: KClass<*>, named: String): Any {
         return this.mapSingletonOf(mapped, mapped, named)
     }
 
-    fun mapSingletonOf(whenAskedFor: Class<*>,
-                       useSingletonOf: Class<*>, named: String): Any {
+    fun mapSingletonOf(whenAskedFor: KClass<*>,
+                       useSingletonOf: KClass<*>, named: String): Any {
         val config = this.getMapping(whenAskedFor, named)
         config.setResult(InjectSingletonResult(useSingletonOf))
         return config
     }
 
-    fun mapRule(whenAskedFor: Class<*>, useRule: Any, named: String): Any {
+    fun mapRule(whenAskedFor: KClass<*>, useRule: Any, named: String): Any {
         val config = this.getMapping(whenAskedFor, named)
         config.setResult(InjectOtherRuleResult(useRule as InjectionConfig))
         return useRule
     }
 
-    fun getMapping(whenAskedFor: Class<*>, named: String): InjectionConfig {
-        val requestName = whenAskedFor.name
+    fun getMapping(whenAskedFor: KClass<*>, named: String): InjectionConfig {
+        val requestName = whenAskedFor.simpleName
         var config: InjectionConfig? = this.m_mappings["$requestName#$named"] as? InjectionConfig
         if (config == null) {
             val newConfig = InjectionConfig(whenAskedFor, named)
@@ -86,9 +87,9 @@ open class Injector(private val m_xmlMetadata: XML?) {
 
             this.attendedToInjectees!![target.hashCode().toString() + ""] = true
 
-            val targetClass = target.javaClass
-            val injecteeDescription = if (this.m_injecteeDescriptions[targetClass.name] != null)
-                this.m_injecteeDescriptions[targetClass.name] as InjecteeDescription
+            val targetClass = target.javaClass.kotlin
+            val injecteeDescription = if (this.m_injecteeDescriptions[targetClass.simpleName] != null)
+                this.m_injecteeDescriptions[targetClass.simpleName] as InjecteeDescription
             else
                 this.getInjectionPoints(targetClass)
             val injectionPoints = injecteeDescription.injectionPoints
@@ -98,8 +99,8 @@ open class Injector(private val m_xmlMetadata: XML?) {
         }
     }
 
-    fun instantiate(clazz: Class<*>): Any? {
-        var injecteeDescription: InjecteeDescription? = this.m_injecteeDescriptions[clazz.name] as? InjecteeDescription
+    fun instantiate(clazz: KClass<*>): Any? {
+        var injecteeDescription: InjecteeDescription? = this.m_injecteeDescriptions[clazz.java.name] as? InjecteeDescription
         if (injecteeDescription == null) {
             injecteeDescription = this.getInjectionPoints(clazz)
         }
@@ -109,27 +110,27 @@ open class Injector(private val m_xmlMetadata: XML?) {
         return instance
     }
 
-    fun unmap(clazz: Class<*>?, named: String) {
+    fun unmap(clazz: KClass<*>?, named: String) {
         clazz?.let {
             val mapping = this.getConfigurationForRequest(it, named,
                     true) ?: throw InjectorError("Error while removing an injector mapping: " +
-                    "No mapping defined for class ${clazz.name} named \"$named\"")
+                    "No mapping defined for class ${clazz.simpleName} named \"$named\"")
             mapping.setResult(null)
         }
     }
 
-    fun hasMapping(clazz: Class<*>, named: String): Boolean {
+    fun hasMapping(clazz: KClass<*>, named: String): Boolean {
         val mapping = this.getConfigurationForRequest(clazz, named,
                 true) ?: return false
         return mapping.hasResponse(this)
     }
 
-    fun getInstance(clazz: Class<*>, named: String): Any? {
+    fun getInstance(clazz: KClass<*>, named: String): Any? {
         val mapping = this.getConfigurationForRequest(clazz, named,
                 true)
         if (mapping == null || (!mapping.hasResponse(this))) {
             throw InjectorError("Error while getting mapping response: "
-                    + "No mapping defined for class " + clazz.name
+                    + "No mapping defined for class " + clazz.simpleName
                     + ", named \"" + named + "\"")
         }
         return mapping.getResponse(this)
@@ -146,7 +147,7 @@ open class Injector(private val m_xmlMetadata: XML?) {
         Injector.INJECTION_POINTS_CACHE = HashMap()
     }
 
-    internal fun getAncestorMapping(whenAskedFor: Class<*>, named: String): InjectionConfig? {
+    internal fun getAncestorMapping(whenAskedFor: KClass<*>, named: String): InjectionConfig? {
         var parent = this.parentInjector
         while (parent != null) {
             val parentConfig = parent.getConfigurationForRequest(
@@ -158,7 +159,7 @@ open class Injector(private val m_xmlMetadata: XML?) {
         return null
     }
 
-    private fun getInjectionPoints(clazz: Class<*>): InjecteeDescription {
+    private fun getInjectionPoints(clazz: KClass<*>): InjecteeDescription {
         val description = Base.describeType(clazz)
         if (description.name !== "Object" && (description.getXMLByName("factory") == null || description
                         .getXMLByName("factory").getXMLByName("extendsClass") == null)) {
@@ -232,13 +233,12 @@ open class Injector(private val m_xmlMetadata: XML?) {
         }
 
         val injecteeDescription = InjecteeDescription(ctorInjectionPoint, injectionPoints)
-        this.m_injecteeDescriptions[clazz.name] = injecteeDescription
+        this.m_injecteeDescriptions[clazz.toString()] = injecteeDescription
         return injecteeDescription
-
     }
 
-    private fun getConfigurationForRequest(clazz: Class<*>, named: String, traverseAncestors: Boolean): InjectionConfig? {
-        val requestName = clazz.name
+    private fun getConfigurationForRequest(clazz: KClass<*>, named: String, traverseAncestors: Boolean): InjectionConfig? {
+        val requestName = clazz.simpleName
         var config: InjectionConfig? = this.m_mappings["$requestName#$named"] as? InjectionConfig
         if (config == null && traverseAncestors
                 && this.parentInjector != null
@@ -330,9 +330,9 @@ open class Injector(private val m_xmlMetadata: XML?) {
         if (parentClassName == null || parentClassName == "")
             return
 
-        val parentClass: Class<*>
+        val parentClass: KClass<*>
         try {
-            parentClass = Class.forName(parentClassName)
+            parentClass = Class.forName(parentClassName).kotlin
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
             return

@@ -4,6 +4,7 @@ import com.mincor.viamframework.viam.base.events.Event
 import com.mincor.viamframework.viam.core.IEventDispatcher
 import com.mincor.viamframework.viam.core.IEventMap
 import com.mincor.viamframework.viam.core.IListener
+import kotlin.reflect.KClass
 
 typealias IEventListener = (event:Event)->Unit
 
@@ -11,12 +12,12 @@ class EventMap(var eventDispatcher: IEventDispatcher, private val listeners: Arr
 
     var isEnabled: Boolean = true
 
-    override fun mapListener(dispatcher: IEventDispatcher, type: String, listener: IEventListener, eventClass: Class<*>?) {
+    override fun mapListener(dispatcher: IEventDispatcher, type: String, listener: IEventListener, eventClass: KClass<*>?) {
         if (!this.isEnabled && dispatcher === this.eventDispatcher) {
             throw ContextError(ContextError.E_EVENTMAP_NOSNOOPING)
         }
 
-        val tempClass = eventClass ?: Event::class.java
+        val tempClass = eventClass ?: Event::class
 
         if (this.listeners.any {
                     it.dispatcher === dispatcher && it.type.equals(type)
@@ -36,7 +37,7 @@ class EventMap(var eventDispatcher: IEventDispatcher, private val listeners: Arr
         dispatcher.addEventListener(type, callback)
     }
 
-    override fun unmapListener(dispatcher: IEventDispatcher, type: String, listener: IEventListener, eventClass: Class<*>?) {
+    override fun unmapListener(dispatcher: IEventDispatcher, type: String, listener: IEventListener, eventClass: KClass<*>?) {
         val tempClass = eventClass ?: Event::class.java
         this.listeners.filter {
             it.dispatcher === dispatcher && it.type == type
@@ -65,7 +66,7 @@ class EventMap(var eventDispatcher: IEventDispatcher, private val listeners: Arr
      * @param listener           listener
      * @param originalEventClass originalEventClass
      */
-    private fun routeEventToListener(event: Event, listener: IEventListener, originalEventClass: Class<*>) {
+    private fun routeEventToListener(event: Event, listener: IEventListener, originalEventClass: KClass<*>) {
         if (originalEventClass.isInstance(event)) {
             listener(event)
         }
@@ -79,7 +80,7 @@ class EventMap(var eventDispatcher: IEventDispatcher, private val listeners: Arr
             var dispatcher: IEventDispatcher? = null,
             var type: String? = null,
             var listener: IEventListener? = null,
-            var eventClass: Class<*>? = null,
+            var eventClass: KClass<*>? = null,
             var callback: IListener? = null
     )
 
@@ -87,7 +88,7 @@ class EventMap(var eventDispatcher: IEventDispatcher, private val listeners: Arr
      * Used to instantiate the IEventListener callback in
      * EventMap.Params.this.listener
      */
-    private inner class Callback(private val listener: IEventListener, private val eventClass: Class<*>) : Listener() {
+    private inner class Callback(private val listener: IEventListener, private val eventClass: KClass<*>) : Listener() {
         override fun onEventHandle(event: Event) {
             routeEventToListener(event, listener, eventClass)
         }

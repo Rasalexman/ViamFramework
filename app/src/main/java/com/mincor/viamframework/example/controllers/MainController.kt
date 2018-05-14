@@ -15,7 +15,7 @@ class MainController : ViewController() {
         println("HELLO MAIN CONTROLLER")
 
         eventMap.mapListener(eventDispatcher, EventNames.CUSTOM_RESPOND, {
-            println("CONTROLLER HANDLE")
+            println("CONTROLLER HANDLE ${user.name}")
         })
 
         dispatch(Event(EventNames.CUSTOM_REQUEST))

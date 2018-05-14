@@ -11,9 +11,9 @@ import com.mincor.viamframework.viam.components.Context
 class MainContext(context: Any, autoStartUp:Boolean = true) : Context(context, autoStartUp) {
 
     override fun setRelation() {
-        injector.mapSigleton(UserActor::class.java, "")
-        injector.mapSigleton(User::class.java, "")
-        interactorMap.mapEvent(EventNames.CUSTOM_REQUEST, CustomInteractor::class.java, null, true)
-        viewControllerMap.mapView(MainActivity::class.java, MainController::class.java, null)
+        injector.mapSigleton(UserActor::class, "")
+        injector.mapSigleton(User::class, "")
+        interactorMap.mapEvent(EventNames.CUSTOM_REQUEST, CustomInteractor::class, null, true)
+        viewControllerMap.mapView(MainActivity::class, MainController::class, null)
     }
 }

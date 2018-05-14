@@ -1,26 +1,28 @@
 package com.mincor.viamframework.viam.core
 
+import kotlin.reflect.KClass
+
 interface IInjector {
 
-    fun mapValue(mapped:Class<*>, valueToUse:Any, named:String):Any
+    fun mapValue(mapped: KClass<*>, valueToUse:Any, named:String):Any
 
-    fun mapClass(mapped:Class<*>, instantiated:Class<*>, named:String):Any
+    fun mapClass(mapped:KClass<*>, instantiated:KClass<*>, named:String):Any
 
-    fun mapSigleton(mapped:Class<*>, named:String):Any
+    fun mapSigleton(mapped:KClass<*>, named:String):Any
 
-    fun mapSingletonOf(mapped:Class<*>, singleOf:Class<*>, named:String):Any
+    fun mapSingletonOf(mapped:KClass<*>, singleOf:KClass<*>, named:String):Any
 
-    fun mapRule(mapped:Class<*>, useRule:Any, named:String):Any
+    fun mapRule(mapped:KClass<*>, useRule:Any, named:String):Any
 
     fun injectInto(target: Any?)
 
-    fun instantiate(clazz: Class<*>): Any?
+    fun instantiate(clazz: KClass<*>): Any?
 
-    fun getInstance(clazz: Class<*>, named: String): Any?
+    fun getInstance(clazz: KClass<*>, named: String): Any?
 
     fun createChild(): IInjector
 
-    fun unmap(clazz: Class<*>?, named: String)
+    fun unmap(clazz: KClass<*>?, named: String)
 
-    fun hasMapping(clazz: Class<*>, named: String): Boolean
+    fun hasMapping(clazz: KClass<*>, named: String): Boolean
 }

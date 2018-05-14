@@ -2,22 +2,21 @@ package com.mincor.viamframework.viam.base
 
 import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.base.prototypes.XMLList
-import com.mincor.viamframework.viam.components.MyDelegate
-import java.lang.reflect.Field
-import kotlin.reflect.KProperty
-import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.KClass
+import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.superclasses
 
 object Base {
 
-    fun getFieldValueByName(fieldName:String, obj: Class<*>):Any? {
+    /*fun getFieldValueByName(fieldName: String, obj: KClass<*>): Any? {
         return try {
             val field = obj.getField(fieldName)
             field?.get(obj)
-        }catch ( e:Exception) {
+        } catch (e: Exception) {
             null
         }
-    }
+    }*/
 
     /**
      * Get the qualified class name
@@ -26,8 +25,8 @@ object Base {
      * @return The name of the class
      */
     fun getQualifiedClassName(value: Any): String {
-        return if (Class::class.java.isInstance(value)) {
-            (value as Class<*>).name
+        return if (KClass::class.java.isInstance(value)) {
+            (value as KClass<*>).java.name
         } else {
             value.javaClass.name
         }
@@ -39,33 +38,35 @@ object Base {
      * @param clazz The class object
      * @return A collection of all the superclass object
      */
-    fun getSuperClasses(clazz: Class<*>): List<Class<*>> {
-        return if (clazz.superclass == null) {
+    private fun getSuperClasses(clazz: KClass<*>): List<KClass<*>> = clazz.superclasses
+    /*{
+        return if (clazz.superclasses == null) {
             arrayListOf()
         } else {
-            val superClass = clazz.superclass
-            val classes = getSuperClasses(superClass) as MutableList<Class<*>>
+            *//*val superClass = clazz.superclasses
+            val classes = getSuperClasses(superClass) as MutableList<KClass<*>>
             classes.add(superClass)
-            classes
+            classes*//*
+
         }
-    }
+    }*/
 
     /**
      * Get a collection of all the implementation of the interface
      *
-     * @param clazz The class object 类对象
+     * @param clazz The class object
      * @return A collection of all the implementation of the interface
      */
-    fun getImplementsInterfaces(clazz: Class<*>): List<Class<*>> {
+    private fun getImplementsInterfaces(clazz: KClass<*>): List<KClass<*>> {
         val result = arrayListOf<Class<*>>()
         val superClasses = getSuperClasses(clazz)
-        var implementsInterfaces = clazz.interfaces
+        var implementsInterfaces = clazz.java.interfaces
         result.addAll(implementsInterfaces)
         for (i in superClasses.indices) {
-            implementsInterfaces = superClasses[i].interfaces
+            implementsInterfaces = superClasses[i].java.interfaces
             result.addAll(implementsInterfaces)
         }
-        return result
+        return result as List<KClass<*>>
     }
 
     /**
@@ -78,9 +79,9 @@ object Base {
      * @return A class of XML description file
      * *****************************************************************
      */
-    fun describeType(clazz: Class<*>): XML {
+    fun describeType(clazz: KClass<*>): XML {
         val xml = XML()
-        val name = clazz.name?:""
+        val name = clazz.qualifiedName ?: ""
         xml.name = "type"
         xml.prototype["name"] = name
         xml.child = XMLList()
@@ -89,9 +90,9 @@ object Base {
         /********************************* Interface  */
         val implementsInterfaces = getImplementsInterfaces(clazz)
         /********************************* FIELDS  */
-        val fields = clazz.fields
+        val fields = clazz.declaredMemberProperties
         /********************************* METHODS  */
-        val methods = clazz.methods
+        val methods = clazz.declaredMemberFunctions
         /********************************* Constructors  */
         val constructors = clazz.constructors
 
@@ -103,7 +104,7 @@ object Base {
             val extendsClassXml = XML()
             xml.child.add(extendsClassXml)
             extendsClassXml.name = "extendsClass"
-            extendsClassXml.prototype["type"] = it.name
+            extendsClassXml.prototype["type"] = it.java.canonicalName?:""
             extendsClassXml.parent = xml
         }
 
@@ -114,7 +115,7 @@ object Base {
         val factoryXml = XML()
         xml.child.add(factoryXml)
         factoryXml.name = "factory"
-        factoryXml.prototype["type"] = clazz.name
+        factoryXml.prototype["type"] = clazz.java.name?:""
         factoryXml.child = XMLList()
         factoryXml.parent = xml
 
@@ -126,7 +127,7 @@ object Base {
             val extendsClassXml = XML()
             factoryXml.child.add(extendsClassXml)
             extendsClassXml.name = "extendsClass"
-            extendsClassXml.prototype["type"] = it.name
+            extendsClassXml.prototype["type"] = it.java.name?:""
             extendsClassXml.parent = factoryXml
         }
 
@@ -138,7 +139,7 @@ object Base {
             val interfaceXml = XML()
             factoryXml.child.add(interfaceXml)
             interfaceXml.name = "implementsInterface"
-            interfaceXml.prototype["type"] = it.name
+            interfaceXml.prototype["type"] = it.simpleName?:""
             interfaceXml.parent = factoryXml
         }
 
@@ -150,13 +151,13 @@ object Base {
          * Then the constructors nodes associated with factoryXml child
          * nodes
          */
-        for (constructor in constructors) {
+        constructors.forEach { constructor ->
             val constructorXml = XML()
             factoryXml.child.add(constructorXml)
             constructorXml.name = "constructor"
             constructorXml.parent = factoryXml
-            val parameterTypes = constructor.parameterTypes
-            parameterTypes.forEachIndexed { i, param->
+
+            constructor.typeParameters.forEachIndexed { i, param ->
                 val parameterXml = XML()
                 constructorXml.child.add(parameterXml)
                 parameterXml.name = "parameter"
@@ -170,59 +171,52 @@ object Base {
          * One by one to get fields
          * Then the child nodes of the associated to the main XML
          */
-        for (field in fields) {
+        fields.forEach { field ->
             val fieldXml = XML()
             factoryXml.child.add(fieldXml)
             fieldXml.name = "variable"
             fieldXml.prototype["name"] = field.name
-            fieldXml.prototype["type"] = field.type.name
+            fieldXml.prototype["type"] = field.toString()
             fieldXml.parent = factoryXml
             val ans = field.annotations.toList()
 
-            val delegating = KProperty::class.java.name == field.type.canonicalName
-            println("is delegatin ${KProperty::class.java.name} ${field.type.canonicalName} - $delegating")
-            val delegates = arrayListOf<Field>()
-            if(delegating){
-                delegates.add(field)
-            }
             /*
              * One by one to get annotations
              * Then the associated to the fields of child nodes
              */
-            for (an in ans) {
+            ans.forEach { an ->
                 val metadataXml = XML()
                 fieldXml.child.add(metadataXml)
                 metadataXml.name = "metadata"
-                metadataXml.prototype["name"] = an.annotationClass.qualifiedName?:""
+                metadataXml.prototype["name"] = an.javaClass.name
                 metadataXml.parent = fieldXml
             }
-
         }
 
         /*
          * One by one to get methods
          * Then associated with factoryXml child nodes
          */
-        for (method in methods) {
+        methods.forEach { method ->
             val methodXml = XML()
             factoryXml.child.add(methodXml)
             methodXml.name = "method"
             methodXml.prototype["name"] = method.name
-            methodXml.prototype["declaredBy"] = method.declaringClass.name
-            methodXml.prototype["returnType"] = method.returnType.name
+            methodXml.prototype["declaredBy"] = method.name
+            methodXml.prototype["returnType"] = method.returnType.toString()
             methodXml.parent = factoryXml
-            val parameterTypes = method.parameterTypes
+            val parameterTypes = method.typeParameters
             val ans = method.annotations
 
             /*
              * One by one to get annotations
              * Then associated with the methods of child nodes
              */
-            ans.forEach { an->
+            ans.forEach { an ->
                 val metadataXml = XML()
                 methodXml.children().add(metadataXml)
                 metadataXml.name = "metadata"
-                metadataXml.prototype["name"] = an.annotationClass.simpleName?:an.toString()
+                metadataXml.prototype["name"] = an.javaClass.canonicalName
                 metadataXml.parent = methodXml
             }
 

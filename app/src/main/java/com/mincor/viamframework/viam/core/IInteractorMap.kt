@@ -1,5 +1,7 @@
 package com.mincor.viamframework.viam.core
 
+import kotlin.reflect.KClass
+
 interface IInteractorMap {
 
     /**
@@ -18,18 +20,18 @@ interface IInteractorMap {
     /**
      *
      */
-    fun execute(interactorClass: Class<*>, payload: Any?, payloadClass:Class<*>?, named:String)
+    fun execute(interactorClass: KClass<*>, payload: Any?, payloadClass:KClass<*>?, named:String)
 
 
     /**
      * Map event to selected Interactor
      */
-    fun mapEvent(eventName:String, interactorClass: Class<*>, eventClass: Class<*>?, oneShot:Boolean = false)
+    fun mapEvent(eventName:String, interactorClass: KClass<*>, eventClass: KClass<*>?, oneShot:Boolean = false)
 
     /**
      * Unmap event from selected Interactor
      */
-    fun unmapEvent(eventName:String, interactorClass: Class<*>, eventClass: Class<*>?)
+    fun unmapEvent(eventName:String, interactorClass: KClass<*>, eventClass: KClass<*>?)
 
     /**
      * Unmap all events from selected Interactor
@@ -40,5 +42,5 @@ interface IInteractorMap {
     /**
      * Check if a interactor has event
      */
-    fun hasEventInteractor(eventName:String, interactorClass: Class<*>, eventClass: Class<*>?):Boolean
+    fun hasEventInteractor(eventName:String, interactorClass: KClass<*>, eventClass: KClass<*>?):Boolean
 }

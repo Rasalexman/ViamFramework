@@ -76,14 +76,14 @@ abstract class Context(override var contextView: Any? = null, private var autoSt
      * Beware of collisions in your container
      */
     protected fun mapInjections() {
-        this.injector.mapValue(IReflector::class.java, reflector, "")
-        this.injector.mapValue(IInjector::class.java, injector, "")
-        this.injector.mapValue(IEventDispatcher::class.java, eventDispatcher, "")
-        this.injector.mapValue(Any::class.java, contextView!!, "")
-        this.injector.mapValue(IInteractorMap::class.java, interactorMap, "")
-        this.injector.mapValue(IViewControllerMap::class.java, viewControllerMap,"")
-        this.injector.mapValue(IViewMap::class.java, viewMap, "")
-        this.injector.mapClass(IEventMap::class.java, EventMap::class.java, "")
+        this.injector.mapValue(IReflector::class, reflector, "")
+        this.injector.mapValue(IInjector::class, injector, "")
+        this.injector.mapValue(IEventDispatcher::class, eventDispatcher, "")
+        this.injector.mapValue(Any::class, contextView!!, "")
+        this.injector.mapValue(IInteractorMap::class, interactorMap, "")
+        this.injector.mapValue(IViewControllerMap::class, viewControllerMap,"")
+        this.injector.mapValue(IViewMap::class, viewMap, "")
+        this.injector.mapClass(IEventMap::class, EventMap::class, "")
     }
 
     /**

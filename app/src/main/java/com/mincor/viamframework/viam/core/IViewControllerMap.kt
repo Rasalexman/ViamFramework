@@ -1,8 +1,10 @@
 package com.mincor.viamframework.viam.core
 
+import kotlin.reflect.KClass
+
 interface IViewControllerMap : IContextViewHolder {
 
-    fun mapView(view:Any, controller:Class<out IViewController>, injectViewAs:Any?, autoCreate:Boolean = true, autoRemove:Boolean = true)
+    fun mapView(view:KClass<*>, controller: KClass<out IViewController>, injectViewAs:Any?, autoCreate:Boolean = true, autoRemove:Boolean = true)
 
     fun unmapView(view:Any)
 

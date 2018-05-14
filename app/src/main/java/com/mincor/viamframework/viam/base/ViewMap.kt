@@ -6,6 +6,7 @@ import com.mincor.viamframework.viam.base.events.EventTypes
 import com.mincor.viamframework.viam.core.IInjector
 import com.mincor.viamframework.viam.core.IViewMap
 import java.util.*
+import kotlin.reflect.KClass
 
 
 class ViewMap(viewContext:Any, injector:IInjector) : ViewMapBase(injector), IViewMap {
@@ -33,7 +34,7 @@ class ViewMap(viewContext:Any, injector:IInjector) : ViewMapBase(injector), IVie
     /**
      * private
      */
-    protected val mappedTypes = hashMapOf<String, Class<*>>()
+    protected val mappedTypes = hashMapOf<String, KClass<*>>()
 
     /**
      * private
@@ -64,7 +65,7 @@ class ViewMap(viewContext:Any, injector:IInjector) : ViewMapBase(injector), IVie
     override fun hasPackage(packageName: String): Boolean = this.mappedPackages.indexOf(packageName) > -1
 
 
-    override fun mapType(type: Class<*>) {
+    override fun mapType(type: KClass<*>) {
         val typeKey = "${type.hashCode()}"
         if (this.mappedTypes[typeKey] != null)
             return
@@ -82,7 +83,7 @@ class ViewMap(viewContext:Any, injector:IInjector) : ViewMapBase(injector), IVie
         }
     }
 
-    override fun unmapType(type: Class<*>) {
+    override fun unmapType(type: KClass<*>) {
         val typeKey = "${type.hashCode()}"
         val mapping = this.mappedTypes[typeKey]
         mapping?.let {
@@ -94,7 +95,7 @@ class ViewMap(viewContext:Any, injector:IInjector) : ViewMapBase(injector), IVie
         }
     }
 
-    override fun hasType(type: Class<*>): Boolean = this.mappedTypes["${type.hashCode()}"] != null
+    override fun hasType(type: KClass<*>): Boolean = this.mappedTypes["${type.hashCode()}"] != null
 
 
     /**

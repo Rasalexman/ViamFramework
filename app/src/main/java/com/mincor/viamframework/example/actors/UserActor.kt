@@ -8,7 +8,8 @@ import com.mincor.viamframework.viam.core.Inject
 
 class UserActor : Actor() {
 
-    @field:Inject lateinit var user:User
+    @field:Inject
+    lateinit var user:User
 
     fun login(){
         println("USER LOG IN HANDLER")

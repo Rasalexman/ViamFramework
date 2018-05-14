@@ -3,6 +3,7 @@ package com.mincor.viamframework.viam.injection
 
 import com.mincor.viamframework.viam.base.Base
 import com.mincor.viamframework.viam.core.IReflector
+import kotlin.reflect.KClass
 
 
 open class Reflector : IReflector {
@@ -14,13 +15,13 @@ open class Reflector : IReflector {
      * @param superclass superclass
      * @return Boolean
      */
-    override fun classExtendsOrImplements(classOrClassName: Any, superclass: Class<*>): Boolean {
-        var actualClass: Class<*>? = null
-        if (classOrClassName is Class<*>) {
+    override fun classExtendsOrImplements(classOrClassName: Any, superclass: KClass<*>): Boolean {
+        var actualClass: KClass<*>? = null
+        if (classOrClassName is KClass<*>) {
             actualClass = classOrClassName
         } else if (classOrClassName is String) {
             try {
-                actualClass = Class.forName(classOrClassName)
+                actualClass = Class.forName(classOrClassName).kotlin
             } catch (e: ClassNotFoundException) {
                 e.printStackTrace()
                 throw Error("The class name " + classOrClassName
@@ -47,8 +48,8 @@ open class Reflector : IReflector {
         return false
     }
 
-    override fun getClass(value: Any): Class<*> {
-        return value as? Class<*> ?: value.javaClass
+    override fun getClass(value: Any): KClass<*> {
+        return value as? KClass<*> ?: value.javaClass.kotlin
     }
 
     /**

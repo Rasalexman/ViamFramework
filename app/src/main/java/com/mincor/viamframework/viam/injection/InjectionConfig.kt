@@ -2,18 +2,19 @@ package com.mincor.viamframework.viam.injection
 
 import android.util.Log
 import com.mincor.viamframework.viam.injection.injectionresults.InjectionResult
+import kotlin.reflect.KClass
 
-class InjectionConfig(var request: Class<*>, var injectionName: String) {
+class InjectionConfig(var request: KClass<*>, var injectionName: String) {
 
-    var m_injector: Injector? = null
-    var m_result: InjectionResult? = null
+    private var injector: Injector? = null
+    private var result: InjectionResult? = null
 
     fun getResponse(injector: Injector): Any? {
-        if (this.m_result != null) {
-            return this.m_result!!
-                    .getResponse(this.m_injector?:injector)
+        if (this.result != null) {
+            return this.result!!
+                    .getResponse(this.injector?:injector)
         }
-        val parentConfig = (this.m_injector?:injector)
+        val parentConfig = (this.injector?:injector)
                 .getAncestorMapping(this.request, this.injectionName)
         return parentConfig?.getResponse(injector)
     }
@@ -25,10 +26,10 @@ class InjectionConfig(var request: Class<*>, var injectionName: String) {
      * @return Boolean
      */
     fun hasResponse(injector: Injector): Boolean {
-        if (this.m_result != null)
+        if (this.result != null)
             return true
 
-        val parentConfig = (this.m_injector?:injector)
+        val parentConfig = (this.injector?:injector)
                 .getAncestorMapping(this.request, this.injectionName)
         return parentConfig != null
     }
@@ -39,19 +40,19 @@ class InjectionConfig(var request: Class<*>, var injectionName: String) {
      * @return Boolean
      */
     fun hasOwnResponse(): Boolean? {
-        return this.m_result != null
+        return this.result != null
     }
 
     /**
-     * Set the result(this.m_result)
+     * Set the result(this.result)
      *
      * @param result result
      */
     fun setResult(result: InjectionResult?) {
-        if (this.m_result != null && result != null) {
+        if (this.result != null && result != null) {
             Log.w("InjectionConfig",
                     "Warning: Injector already has a rule for type \""
-                            + this.request.name
+                            + this.request.java.name
                             + "\", named \""
                             + this.injectionName
                             + "\".\n "
@@ -59,6 +60,6 @@ class InjectionConfig(var request: Class<*>, var injectionName: String) {
                             + "\"injector.unmap()\" prior to your replacement mapping in order to "
                             + "avoid seeing this message.")
         }
-        this.m_result = result
+        this.result = result
     }
 }
