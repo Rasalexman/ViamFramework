@@ -7,6 +7,7 @@ import com.mincor.viamframework.viam.injection.InjectorError
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
+import kotlin.reflect.KClass
 
 open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(node, injector) {
 
@@ -14,10 +15,8 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
      * private properties *
      */
     protected var methodName: String = ""
-
-    protected lateinit var _parameterInjectionConfigs: MutableList<Any>
-
-    protected var requiredParameters = 0
+    private lateinit var parameterInjectionConfigs: MutableList<Any>
+    private var requiredParameters = 0
 
     override fun applyInjection(target: Any, injector: Injector): Any? {
         val parameters = this.gatherParameterValues(target, injector)
@@ -26,7 +25,7 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
             val typeList = parameters[0] as List<KClass<*>>
             val typeClasses = arrayOfNulls<KClass<*>>(typeList.size)
             typeList.toTypedArray()
-            method = target.javaClass.getMethod(this.methodName, *typeClasses)
+            method = target.javaClass.getMethod(this.methodName, typeClasses::class.java)
         } catch (e: NoSuchMethodException) {
             e.printStackTrace()
             return target
@@ -67,7 +66,7 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
      * @param nameArgs   nameArgs
      */
     protected fun gatherParameters(methodNode: XML, nameArgs: List<XML>) {
-        this._parameterInjectionConfigs = ArrayList()
+        this.parameterInjectionConfigs = ArrayList()
         var i = 0
         val parameters = methodNode.getXMLListByName("parameter")
         var j = 0
@@ -88,7 +87,7 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
                     parameterTypeName = null
                 }
             }
-            this._parameterInjectionConfigs.add(ParameterInjectionConfig(
+            this.parameterInjectionConfigs.add(ParameterInjectionConfig(
                     parameterTypeName, injectionName))
             if (parameter.getValue("optional") == "false") {
                 this.requiredParameters++
@@ -108,13 +107,13 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
     protected fun gatherParameterValues(target: Any, injector: Injector): Array<Any> {
         val parameters = ArrayList<Any>()
         val types = ArrayList<KClass<*>>()
-        val length = this._parameterInjectionConfigs.size
+        val length = this.parameterInjectionConfigs.size
         for (i in 0 until length) {
-            val parameterConfig = this._parameterInjectionConfigs[i] as ParameterInjectionConfig
+            val parameterConfig = this.parameterInjectionConfigs[i] as ParameterInjectionConfig
             val config: InjectionConfig
             try {
                 config = injector.getMapping(
-                        Class.forName(parameterConfig.typeName),
+                        Class.forName(parameterConfig.typeName).kotlin,
                         parameterConfig.injectionName)
             } catch (e: ClassNotFoundException) {
                 e.printStackTrace()
@@ -130,11 +129,11 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
                 throw InjectorError(
                         "Injector is missing a rule to handle injection into target "
                                 + target + ". Target dependency: "
-                                + config.request.name + ", method: "
+                                + config.request::class.java.name + ", method: "
                                 + this.methodName + ", parameter: " + (i + 1))
             }
             try {
-                types.add(Class.forName(parameterConfig.typeName))
+                types.add(Class.forName(parameterConfig.typeName).kotlin)
                 parameters.add(injection)
             } catch (e: ClassNotFoundException) {
                 e.printStackTrace()
@@ -147,6 +146,5 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
     /**
      * Only be gatherParameters and gatherParameterValues use
      */
-    private inner class ParameterInjectionConfig(var typeName: String?, var injectionName: String)
-
+    private data class ParameterInjectionConfig(var typeName: String?, var injectionName: String)
 }

@@ -5,11 +5,10 @@ import com.mincor.viamframework.viam.core.Inject
 import com.mincor.viamframework.viam.injection.Injector
 import kotlin.reflect.KClass
 
-
-class ConstructorInjectionPoint(node: XML, clazz: KKClass<*>, injector: Injector) : MethodInjectionPoint(node, injector) {
+class ConstructorInjectionPoint(node: XML, clazz: KClass<*>, injector: Injector) : MethodInjectionPoint(node, injector) {
 
     override fun applyInjection(target: Any, injector: Injector): Any? {
-        val ctor = target as KKClass<*>
+        val ctor = target as KClass<*>
         val parameters = this.gatherParameterValues(target, injector)
         /*
          * the only way to implement ctor injections, really
@@ -28,7 +27,7 @@ class ConstructorInjectionPoint(node: XML, clazz: KKClass<*>, injector: Injector
                     val typeList = parameters[0] as List<KClass<*>>
                     val typeClasses = arrayOfNulls<KClass<*>>(typeList.size)
                     typeList.toTypedArray()
-                    return ctor::class.java.getConstructor(*typeClasses)
+                    return ctor::class.java.getConstructor(typeClasses::class.java)
                 } catch (e: IllegalArgumentException) {
                     e.printStackTrace()
                 } catch (e: NoSuchMethodException) {
@@ -40,20 +39,15 @@ class ConstructorInjectionPoint(node: XML, clazz: KKClass<*>, injector: Injector
                 val typeList = parameters[0] as List<KClass<*>>
                 val typeClasses = arrayOfNulls<KClass<*>>(typeList.size)
                 typeList.toTypedArray()
-                return ctor::class.java.getConstructor(*typeClasses)
+                return ctor::class.java.getConstructor(typeClasses::class.java)
             } catch (e: IllegalArgumentException) {
                 e.printStackTrace()
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
             }
-
         }
         return null
     }
-
-    /*******************************************************************************************
-     * protected methods *
-     */
 
     /**
      * Initialize the injection
@@ -61,11 +55,11 @@ class ConstructorInjectionPoint(node: XML, clazz: KKClass<*>, injector: Injector
      * @param node node
      */
     override fun initializeInjection(node: XML) {
-        val nameArgs = node.parent!!.getXMLListByNameAndKeyValue("metadata",
-                "name", Inject::class.java.name).getXMLListByNameAndKeyValue(
+        val nameArgs = node.parent?.getXMLListByNameAndKeyValue("metadata",
+                "name", Inject::class.java.name)?.getXMLListByNameAndKeyValue(
                 "arg", "key", "name")
         this.methodName = "constructor"
-        this.gatherParameters(node, nameArgs)
+        this.gatherParameters(node, nameArgs?:kotlin.collections.arrayListOf())
     }
 
 }

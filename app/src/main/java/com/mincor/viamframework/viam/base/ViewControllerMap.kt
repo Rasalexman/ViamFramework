@@ -6,33 +6,13 @@ import com.mincor.viamframework.viam.core.IViewController
 import com.mincor.viamframework.viam.core.IViewControllerMap
 import kotlin.reflect.KClass
 
-
 class ViewControllerMap(private val reflector: IReflector, override var contextView: Any?, injector: IInjector) : ViewMapBase(injector), IViewControllerMap {
-    /**
-     * private
-     */
-    protected var controllerByView = hashMapOf<String, IViewController?>()
 
-    /**
-     * private
-     */
-    protected var mappingConfigByView = hashMapOf<String, MappingConfig?>()
-
-    /**
-     * private
-     */
-    protected var mappingConfigByViewClassName = hashMapOf<String, MappingConfig?>()
-
-    /**
-     * private
-     */
-    protected var controllerMarkedForRemoval = hashMapOf<String, Any>()
-
-    /**
-     * private
-     */
-    protected var hasControllerMarkedForRemoval: Boolean = false
-
+    private var controllerByView = hashMapOf<String, IViewController?>()
+    private var mappingConfigByView = hashMapOf<String, MappingConfig?>()
+    private var mappingConfigByViewClassName = hashMapOf<String, MappingConfig?>()
+    private var controllerMarkedForRemoval = hashMapOf<String, Any>()
+    private var hasControllerMarkedForRemoval: Boolean = false
 
     override var isEnabled: Boolean = true
 
@@ -49,13 +29,11 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
         val config = MappingConfig(controller, null, autoCreate, autoRemove)
         injectViewAs?.let {
             when (it) {
-                is List<*> -> config.typedViewClasses = (injectViewAs as? ArrayList<Any>)?.clone() as? ArrayList<Any>
-                is KClass<*> -> config.typedViewClasses = arrayListOf(injectViewAs)
+                is List<*> -> config.typedViewClasses = (injectViewAs as? ArrayList<KClass<*>>)?.clone() as? ArrayList<KClass<*>>
+                is KClass<*> -> config.typedViewClasses = arrayListOf(injectViewAs as KClass<*>)
             }
         } ?: let {
-            if (view is KClass<*>) {
-                config.typedViewClasses = arrayListOf(view)
-            }
+            config.typedViewClasses = arrayListOf(view)
         }
 
         this.mappingConfigByViewClassName[viewClassName] = config
@@ -99,7 +77,6 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
 
     override fun createController(viewComponent: Any): IViewController? =
             this.createControllerUsing(viewComponent, "", null)
-
 
     override fun registerController(viewComponent: Any, viewController: IViewController) {
         val controllerClass = this.reflector.getClass(viewController)
@@ -166,13 +143,13 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
             tempConfig?.let {
 
                 it.typedViewClasses?.forEach {
-                    this.injector.mapValue(it as KClass<*>, viewComponent, "")
+                    this.injector.mapValue(it, viewComponent, "")
                 }
 
                 controller = this.injector.instantiate(it.controllerClass) as IViewController
 
                 it.typedViewClasses?.forEach {
-                    this.injector.unmap(it as KClass<*>, "")
+                    this.injector.unmap(it, "")
                 }
                 this.registerController(viewComponent, controller!!)
             }
@@ -237,7 +214,7 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
 
     data class MappingConfig(
             var controllerClass: KClass<*>,
-            var typedViewClasses: List<Any>? = null,
+            var typedViewClasses: List<KClass<*>>? = null,
             var autoCreate: Boolean = false,
             var autoRemove: Boolean = false
     )

@@ -4,6 +4,7 @@ import com.mincor.viamframework.viam.base.EventMap
 import com.mincor.viamframework.viam.base.events.Event
 import com.mincor.viamframework.viam.core.IEventDispatcher
 import com.mincor.viamframework.viam.core.Inject
+import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 open class Actor {
@@ -11,11 +12,9 @@ open class Actor {
     @field:Inject
     lateinit var eventDispatcher:IEventDispatcher
 
-    val myLazyInitializer by MyDelegate()
+    val myLazyInitializer:IEventDispatcher by inject()
 
     val eventMap: EventMap by lazy { EventMap(eventDispatcher) }
-
-
 
     /**
      * Dispatch helper method
@@ -27,8 +26,10 @@ open class Actor {
     protected fun dispatch(event: Event): Boolean = if (eventDispatcher.hasEventListener(event.type)) this.eventDispatcher.dispatchEvent(event) else false
 }
 
-class MyDelegate {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
-        return "$thisRef, спасибо за делегирование мне '${property.name}'!"
+inline fun <reified T:Any> inject(): ReadOnlyProperty<Actor, T> {
+    return object : ReadOnlyProperty<Actor, T> {
+        override fun getValue(thisRef: Actor, property: KProperty<*>): T {
+            return property as T
+        }
     }
 }

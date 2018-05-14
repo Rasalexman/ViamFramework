@@ -24,15 +24,15 @@ class ContextError(messageInput:String = "") : Error(messageInput) {
 
         const val E_COMMANDMAP_OVR = "Cannot overwrite map"
 
-        const val E_COMMANDMAP_NOIMPL = "Command Class does not implement an execute() method"
+        const val E_COMMANDMAP_NOIMPL = "Interactor Class does not implement an execute() method"
 
         /*********************************
          * MediatorMap
          */
 
-        const val E_MEDIATORMAP_OVR = "Mediator Class has already been mapped to a View Class in this context"
+        const val E_MEDIATORMAP_OVR = "ViewController Class has already been mapped to a View Class in this context"
 
-        const val E_MEDIATORMAP_NOIMPL = "Mediator Class does not implement IMediator"
+        const val E_MEDIATORMAP_NOIMPL = "ViewController Class does not implement IViewController"
 
         /************************************************************************************/
     }

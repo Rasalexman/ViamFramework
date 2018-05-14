@@ -12,7 +12,7 @@ import com.mincor.viamframework.viam.injection.injectionresults.InjectValueResul
 import java.util.*
 import kotlin.reflect.KClass
 
-open class Injector(private val m_xmlMetadata: XML?) {
+open class Injector(private val xmlMetadata: XML?) {
 
     var parentInjector: Injector? = null
         set(parentInjector) {
@@ -28,16 +28,15 @@ open class Injector(private val m_xmlMetadata: XML?) {
 
         }
 
-    private val m_mappings: MutableMap<String, Any> = HashMap()
+    private val mappings: MutableMap<String, Any> = HashMap()
 
-    private var m_injecteeDescriptions: MutableMap<String, Any?> = if (m_xmlMetadata != null) {
+    private var injecteeDescriptions: MutableMap<String, Any?> = if (xmlMetadata != null) {
         WeakHashMap()
     } else {
         Injector.INJECTION_POINTS_CACHE
     }
 
-    internal var attendedToInjectees: MutableMap<String, Any>? = WeakHashMap()
-        private set
+    private var attendedToInjectees: MutableMap<String, Any>? = WeakHashMap()
 
     fun mapValue(whenAskedFor: KClass<*>, useValue: Any, named: String): Any {
         val config = this.getMapping(whenAskedFor, named)
@@ -70,10 +69,10 @@ open class Injector(private val m_xmlMetadata: XML?) {
 
     fun getMapping(whenAskedFor: KClass<*>, named: String): InjectionConfig {
         val requestName = whenAskedFor.simpleName
-        var config: InjectionConfig? = this.m_mappings["$requestName#$named"] as? InjectionConfig
+        var config: InjectionConfig? = this.mappings["$requestName#$named"] as? InjectionConfig
         if (config == null) {
             val newConfig = InjectionConfig(whenAskedFor, named)
-            this.m_mappings["$requestName#$named"] = newConfig
+            this.mappings["$requestName#$named"] = newConfig
             config = newConfig
         }
         return config
@@ -81,26 +80,26 @@ open class Injector(private val m_xmlMetadata: XML?) {
 
     fun injectInto(target: Any?) {
         target?.let {
-            if (this.attendedToInjectees!![target.hashCode().toString() + ""] != null && this.attendedToInjectees!![target.hashCode().toString() + ""] as Boolean) {
+            if (this.attendedToInjectees!![it.hashCode().toString() + ""] != null && this.attendedToInjectees!![it.hashCode().toString() + ""] as Boolean) {
                 return
             }
 
-            this.attendedToInjectees!![target.hashCode().toString() + ""] = true
+            this.attendedToInjectees!![it.hashCode().toString() + ""] = true
 
-            val targetClass = target.javaClass.kotlin
-            val injecteeDescription = if (this.m_injecteeDescriptions[targetClass.simpleName] != null)
-                this.m_injecteeDescriptions[targetClass.simpleName] as InjecteeDescription
+            val targetClass = it.javaClass.kotlin
+            val injecteeDescription = if (this.injecteeDescriptions[targetClass.simpleName] != null)
+                this.injecteeDescriptions[targetClass.simpleName] as InjecteeDescription
             else
                 this.getInjectionPoints(targetClass)
             val injectionPoints = injecteeDescription.injectionPoints
             injectionPoints.forEach {
-                it.applyInjection(target, this)
+                it.applyInjection(it, this)
             }
         }
     }
 
     fun instantiate(clazz: KClass<*>): Any? {
-        var injecteeDescription: InjecteeDescription? = this.m_injecteeDescriptions[clazz.java.name] as? InjecteeDescription
+        var injecteeDescription: InjecteeDescription? = this.injecteeDescriptions[clazz.java.name] as? InjecteeDescription
         if (injecteeDescription == null) {
             injecteeDescription = this.getInjectionPoints(clazz)
         }
@@ -126,8 +125,7 @@ open class Injector(private val m_xmlMetadata: XML?) {
     }
 
     fun getInstance(clazz: KClass<*>, named: String): Any? {
-        val mapping = this.getConfigurationForRequest(clazz, named,
-                true)
+        val mapping = this.getConfigurationForRequest(clazz, named,true)
         if (mapping == null || (!mapping.hasResponse(this))) {
             throw InjectorError("Error while getting mapping response: "
                     + "No mapping defined for class " + clazz.simpleName
@@ -171,7 +169,7 @@ open class Injector(private val m_xmlMetadata: XML?) {
         /*
          * This is where we have to wire in the XML...
          */
-        if (this.m_xmlMetadata != null) {
+        if (this.xmlMetadata != null) {
             this.createInjectionPointsFromConfigXML(description)
             this.addParentInjectionPoints(description, injectionPoints)
         }
@@ -233,13 +231,13 @@ open class Injector(private val m_xmlMetadata: XML?) {
         }
 
         val injecteeDescription = InjecteeDescription(ctorInjectionPoint, injectionPoints)
-        this.m_injecteeDescriptions[clazz.toString()] = injecteeDescription
+        this.injecteeDescriptions[clazz.toString()] = injecteeDescription
         return injecteeDescription
     }
 
     private fun getConfigurationForRequest(clazz: KClass<*>, named: String, traverseAncestors: Boolean): InjectionConfig? {
         val requestName = clazz.simpleName
-        var config: InjectionConfig? = this.m_mappings["$requestName#$named"] as? InjectionConfig
+        var config: InjectionConfig? = this.mappings["$requestName#$named"] as? InjectionConfig
         if (config == null && traverseAncestors
                 && this.parentInjector != null
                 && this.parentInjector!!.hasMapping(clazz, named)) {
@@ -250,10 +248,8 @@ open class Injector(private val m_xmlMetadata: XML?) {
 
     private fun createInjectionPointsFromConfigXML(description: XML) {
         val metadata = description.children().getXMLListByName("metadata")
-        val nodes = metadata.getXMLListByKeyValue("name",
-                Inject::class.java.name)
-        nodes.addAll(metadata.getXMLListByKeyValue("name",
-                PostConstruct::class.java.name))
+        val nodes = metadata.getXMLListByKeyValue("name", Inject::class.java.name)
+        nodes.addAll(metadata.getXMLListByKeyValue("name", PostConstruct::class.java.name))
         for (node in nodes) {
             val pNode = node.parent
             pNode!!.children().removeAll(
@@ -265,7 +261,7 @@ open class Injector(private val m_xmlMetadata: XML?) {
         }
 
         val className = description.getXMLByName("factory").getValue("type")
-        for (node in this.m_xmlMetadata!!.getXMLListByNameAndKeyValue("type",
+        for (node in this.xmlMetadata!!.getXMLListByNameAndKeyValue("type",
                 "name", className).children()) {
             val metaNode = XML()
             metaNode.name = "metadata"
@@ -327,7 +323,7 @@ open class Injector(private val m_xmlMetadata: XML?) {
                                          injectionPoints: MutableList<InjectionPoint>) {
         val parentClassName = description.getXMLByName("factory")
                 .getXMLByName("extendsClass").getValue("type")
-        if (parentClassName == null || parentClassName == "")
+        if (parentClassName.isBlank() || parentClassName == "")
             return
 
         val parentClass: KClass<*>
@@ -339,8 +335,8 @@ open class Injector(private val m_xmlMetadata: XML?) {
         }
 
         val parentKey = "${parentClass.hashCode()}"
-        val parentDescription = if (this.m_injecteeDescriptions[parentKey] != null)
-            this.m_injecteeDescriptions[parentKey] as InjecteeDescription
+        val parentDescription = if (this.injecteeDescriptions[parentKey] != null)
+            this.injecteeDescriptions[parentKey] as InjecteeDescription
         else
             this.getInjectionPoints(parentClass)
         val parentInjectionPoints = parentDescription.injectionPoints
@@ -351,8 +347,7 @@ open class Injector(private val m_xmlMetadata: XML?) {
     // Internal
     // ---------------------------------------------------------------------
 
-    private inner class InjecteeDescription(var ctor: InjectionPoint,
-                                            var injectionPoints: List<InjectionPoint>)
+    private data class InjecteeDescription(var ctor: InjectionPoint, var injectionPoints: List<InjectionPoint>)
 
     companion object {
         private var INJECTION_POINTS_CACHE: MutableMap<String, Any?> = WeakHashMap()

@@ -11,7 +11,7 @@ class SuspendInjector(xmlConfig: XML?) : Injector(getConstructParam(xmlConfig)),
 
     companion object {
 
-        val XML_CONFIG = initXML_CONFIG()
+        private val XML_CONFIG = initXML_CONFIG()
 
         /**
          * Init the XML config

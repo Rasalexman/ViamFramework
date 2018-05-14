@@ -6,7 +6,6 @@ import com.mincor.viamframework.viam.components.Interactor
 import java.util.*
 import kotlin.reflect.KClass
 
-
 typealias ListenersClassMap = MutableMap<String, IListener?>
 typealias EventClassMap = MutableMap<String, ListenersClassMap?>
 typealias EventMutableMap = kotlin.collections.MutableMap<String, EventClassMap?>
@@ -56,7 +55,7 @@ class InteractorMap(
         this.verifyInteractorClass(interactorClass)
 
         if (payload != null || payloadClass != null) {
-            val tempPayloadClass = payloadClass ?: this.reflector?.getClass(payload!!)
+            val tempPayloadClass = payloadClass ?: this.reflector?.getClass(payload!!)!!
             if (Event::class.java.isInstance(payload) && tempPayloadClass != Event::class.java) {
                 payload?.let {
                     this.injector?.mapValue(Event::class, it, "")

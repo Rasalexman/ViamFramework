@@ -1,4 +1,3 @@
-
 package com.mincor.viamframework.viam.injection
 
 import com.mincor.viamframework.viam.base.Base
@@ -6,7 +5,7 @@ import com.mincor.viamframework.viam.core.IReflector
 import kotlin.reflect.KClass
 
 
-open class Reflector : IReflector {
+abstract class Reflector : IReflector {
 
     /**
      * Judge whether a class inherits a class or implements an interface
@@ -31,14 +30,12 @@ open class Reflector : IReflector {
 
         }
         if (actualClass == null) {
-            throw Error(
-                    "The parameter classOrClassName must be a valid Class " + "instance or fully qualified class name.")
+            throw Error("The parameter classOrClassName must be a valid Class " + "instance or fully qualified class name.")
         }
         if (actualClass == superclass)
             return true
 
-        val factoryDescription = Base.describeType(actualClass).getXMLByName(
-                "factory")
+        val factoryDescription = Base.describeType(actualClass).getXMLByName("factory")
         val children = factoryDescription.children()
         children.forEach {
             if ((it.name == "implementsInterface" || it.name == "extendsClass") && it.getValue("type") == Base.getQualifiedClassName(superclass)) {
@@ -66,12 +63,10 @@ open class Reflector : IReflector {
 
             /*
              * Add colons if missing and desired.
-             *
              */
             if ((!replaceColons) && !fullyQualifiedClassName.contains("::")) {
                 val lastDotIndex = fullyQualifiedClassName.lastIndexOf(".")
                 return if (lastDotIndex == -1) fullyQualifiedClassName else fullyQualifiedClassName.substring(0, lastDotIndex)+ "::"+ fullyQualifiedClassName.substring(lastDotIndex + 1)
-
             }
         } else {
             fullyQualifiedClassName = Base.getQualifiedClassName(value)
@@ -81,5 +76,4 @@ open class Reflector : IReflector {
         else
             fullyQualifiedClassName
     }
-
 }

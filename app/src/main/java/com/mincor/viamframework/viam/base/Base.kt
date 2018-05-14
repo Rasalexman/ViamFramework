@@ -25,8 +25,8 @@ object Base {
      * @return The name of the class
      */
     fun getQualifiedClassName(value: Any): String {
-        return if (KClass::class.java.isInstance(value)) {
-            (value as KClass<*>).java.name
+        return if (value is KClass<*>) {
+            value.qualifiedName ?: value.toString()
         } else {
             value.javaClass.name
         }
@@ -38,18 +38,14 @@ object Base {
      * @param clazz The class object
      * @return A collection of all the superclass object
      */
-    private fun getSuperClasses(clazz: KClass<*>): List<KClass<*>> = clazz.superclasses
-    /*{
-        return if (clazz.superclasses == null) {
-            arrayListOf()
-        } else {
-            *//*val superClass = clazz.superclasses
-            val classes = getSuperClasses(superClass) as MutableList<KClass<*>>
-            classes.add(superClass)
-            classes*//*
-
-        }
-    }*/
+    private fun getSuperClasses(clazz: KClass<*>): MutableList<KClass<*>> = if (clazz.superclasses.isEmpty()) {
+        arrayListOf()
+    } else {
+        val superClass =  clazz.superclasses.first()
+        val superClasses = getSuperClasses(superClass)
+        superClasses.add(superClass)
+        superClasses
+    }
 
     /**
      * Get a collection of all the implementation of the interface
@@ -58,15 +54,10 @@ object Base {
      * @return A collection of all the implementation of the interface
      */
     private fun getImplementsInterfaces(clazz: KClass<*>): List<KClass<*>> {
-        val result = arrayListOf<Class<*>>()
+        val result = arrayListOf<KClass<*>>()
         val superClasses = getSuperClasses(clazz)
-        var implementsInterfaces = clazz.java.interfaces
-        result.addAll(implementsInterfaces)
-        for (i in superClasses.indices) {
-            implementsInterfaces = superClasses[i].java.interfaces
-            result.addAll(implementsInterfaces)
-        }
-        return result as List<KClass<*>>
+        superClasses.filter { it.java.isInterface }.mapTo(result, {it})
+        return result
     }
 
     /**
@@ -104,7 +95,7 @@ object Base {
             val extendsClassXml = XML()
             xml.child.add(extendsClassXml)
             extendsClassXml.name = "extendsClass"
-            extendsClassXml.prototype["type"] = it.java.canonicalName?:""
+            extendsClassXml.prototype["type"] = it.qualifiedName?:""
             extendsClassXml.parent = xml
         }
 
@@ -115,7 +106,7 @@ object Base {
         val factoryXml = XML()
         xml.child.add(factoryXml)
         factoryXml.name = "factory"
-        factoryXml.prototype["type"] = clazz.java.name?:""
+        factoryXml.prototype["type"] = name
         factoryXml.child = XMLList()
         factoryXml.parent = xml
 
@@ -127,7 +118,7 @@ object Base {
             val extendsClassXml = XML()
             factoryXml.child.add(extendsClassXml)
             extendsClassXml.name = "extendsClass"
-            extendsClassXml.prototype["type"] = it.java.name?:""
+            extendsClassXml.prototype["type"] = it.qualifiedName?:""
             extendsClassXml.parent = factoryXml
         }
 
@@ -139,7 +130,7 @@ object Base {
             val interfaceXml = XML()
             factoryXml.child.add(interfaceXml)
             interfaceXml.name = "implementsInterface"
-            interfaceXml.prototype["type"] = it.simpleName?:""
+            interfaceXml.prototype["type"] = it.qualifiedName?:""
             interfaceXml.parent = factoryXml
         }
 
@@ -176,7 +167,7 @@ object Base {
             factoryXml.child.add(fieldXml)
             fieldXml.name = "variable"
             fieldXml.prototype["name"] = field.name
-            fieldXml.prototype["type"] = field.toString()
+            fieldXml.prototype["type"] = field.getter.name
             fieldXml.parent = factoryXml
             val ans = field.annotations.toList()
 
@@ -188,7 +179,7 @@ object Base {
                 val metadataXml = XML()
                 fieldXml.child.add(metadataXml)
                 metadataXml.name = "metadata"
-                metadataXml.prototype["name"] = an.javaClass.name
+                metadataXml.prototype["name"] = an.annotationClass.qualifiedName?:""
                 metadataXml.parent = fieldXml
             }
         }
@@ -216,7 +207,7 @@ object Base {
                 val metadataXml = XML()
                 methodXml.children().add(metadataXml)
                 metadataXml.name = "metadata"
-                metadataXml.prototype["name"] = an.javaClass.canonicalName
+                metadataXml.prototype["name"] = an.annotationClass.qualifiedName?:""
                 metadataXml.parent = methodXml
             }
 
@@ -224,12 +215,12 @@ object Base {
              * One by one to get parameterTypes
              * Then associated with the methods of child nodes
              */
-            for (j in parameterTypes.indices) {
+            parameterTypes.forEachIndexed { index, kTypeParameter ->
                 val parameterXml = XML()
                 methodXml.child.add(parameterXml)
                 parameterXml.name = "parameter"
-                parameterXml.prototype["index"] = j.toString() + ""
-                parameterXml.prototype["type"] = parameterTypes[j].name
+                parameterXml.prototype["index"] = "$index"
+                parameterXml.prototype["type"] = kTypeParameter.name
                 parameterXml.prototype["optional"] = "false"
                 parameterXml.parent = methodXml
             }

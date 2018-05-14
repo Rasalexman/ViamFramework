@@ -1,11 +1,9 @@
-
 package com.mincor.viamframework.viam.injection.injectionpoints
 
 import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.injection.InjectionConfig
 import com.mincor.viamframework.viam.injection.Injector
 import com.mincor.viamframework.viam.injection.InjectorError
-
 
 class PropertyInjectionPoint(node: XML, injector: Injector?) : InjectionPoint(node, null) {
 
@@ -19,8 +17,7 @@ class PropertyInjectionPoint(node: XML, injector: Injector?) : InjectionPoint(no
     override fun applyInjection(target: Any, injector: Injector): Any {
         val injectionConfig: InjectionConfig
         try {
-            injectionConfig = injector.getMapping(
-                    Class.forName(this._propertyType), this._injectionName?:"")
+            injectionConfig = injector.getMapping(Class.forName(this._propertyType).kotlin, this._injectionName?:"")
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
             return target

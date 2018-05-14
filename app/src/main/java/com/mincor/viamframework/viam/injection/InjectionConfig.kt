@@ -10,13 +10,10 @@ class InjectionConfig(var request: KClass<*>, var injectionName: String) {
     private var result: InjectionResult? = null
 
     fun getResponse(injector: Injector): Any? {
-        if (this.result != null) {
-            return this.result!!
-                    .getResponse(this.injector?:injector)
+        return this.result?.getResponse(this.injector?:injector) ?: let {
+            val parentConfig = (this.injector?:injector).getAncestorMapping(this.request, this.injectionName)
+            parentConfig?.getResponse(injector)
         }
-        val parentConfig = (this.injector?:injector)
-                .getAncestorMapping(this.request, this.injectionName)
-        return parentConfig?.getResponse(injector)
     }
 
     /**
@@ -26,9 +23,7 @@ class InjectionConfig(var request: KClass<*>, var injectionName: String) {
      * @return Boolean
      */
     fun hasResponse(injector: Injector): Boolean {
-        if (this.result != null)
-            return true
-
+        if (this.result != null) return true
         val parentConfig = (this.injector?:injector)
                 .getAncestorMapping(this.request, this.injectionName)
         return parentConfig != null
