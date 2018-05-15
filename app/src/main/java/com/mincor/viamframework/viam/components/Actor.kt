@@ -9,10 +9,10 @@ import kotlin.reflect.KProperty
 
 open class Actor {
 
-    @Inject
+    @field:Inject
     lateinit var eventDispatcher:IEventDispatcher
 
-    val myLazyInitializer:IEventDispatcher by inject()
+    //val myLazyInitializer:IEventDispatcher by inject()
 
     val eventMap: EventMap by lazy { EventMap(eventDispatcher) }
 

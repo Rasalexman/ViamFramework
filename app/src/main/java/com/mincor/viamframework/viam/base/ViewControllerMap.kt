@@ -1,5 +1,6 @@
 package com.mincor.viamframework.viam.base
 
+import com.mincor.viamframework.viam.base.ext.className
 import com.mincor.viamframework.viam.core.IInjector
 import com.mincor.viamframework.viam.core.IReflector
 import com.mincor.viamframework.viam.core.IViewController
@@ -50,7 +51,7 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
          * graph
          */
         this.contextView?.let {
-            if (autoCreate && viewClassName == it::class.qualifiedName) {
+            if (autoCreate && viewClassName == it::class.className()) {
                 this.createControllerUsing(view, viewClassName, config)
             }
         }
@@ -192,10 +193,6 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
         }
     }
 
-    /**
-     * Flex framework work-around part #6
-     * When remove the Mediator later
-     */
     protected fun removeControllerLater() {
         for (view in this.controllerMarkedForRemoval.values) {
             this.removeControllerByView(view)

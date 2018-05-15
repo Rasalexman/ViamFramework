@@ -29,17 +29,9 @@ class ViewMap(viewContext:Any, injector:IInjector) : ViewMapBase(injector), IVie
     /**
      * private
      */
-    protected val mappedPackages = arrayListOf<String>()
-
-    /**
-     * private
-     */
-    protected val mappedTypes = hashMapOf<String, KClass<*>>()
-
-    /**
-     * private
-     */
-    protected val injectedViews = WeakHashMap<String, Any?>()
+    private val mappedPackages = arrayListOf<String>()
+    private val mappedTypes = hashMapOf<String, KClass<*>>()
+    private val injectedViews = WeakHashMap<String, Any?>()
 
     override fun mapPackage(packageName: String) {
         if (this.mappedPackages.indexOf(packageName) == -1) {

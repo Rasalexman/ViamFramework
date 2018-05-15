@@ -6,19 +6,19 @@ import com.mincor.viamframework.viam.core.*
 
 abstract class Interactor {
 
-    @Inject
+    @field:Inject
     var contextView: Any? = null
 
-    @Inject
+    @field:Inject
     var commandMap: IInteractorMap? = null
 
-    @Inject
+    @field:Inject
     lateinit var eventDispatcher: IEventDispatcher
 
-    @Inject
+    @field:Inject
     var injector: IInjector? = null
 
-    @Inject
+    @field:Inject
     var mediatorMap: IViewControllerMap? = null
 
     /**

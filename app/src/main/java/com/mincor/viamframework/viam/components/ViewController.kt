@@ -1,6 +1,7 @@
 package com.mincor.viamframework.viam.components
 
 import com.mincor.viamframework.viam.base.EventMap
+import com.mincor.viamframework.viam.base.IEventListener
 import com.mincor.viamframework.viam.base.ViewControllerBase
 import com.mincor.viamframework.viam.base.events.Event
 import com.mincor.viamframework.viam.core.IEventDispatcher
@@ -9,13 +10,13 @@ import com.mincor.viamframework.viam.core.Inject
 
 abstract class ViewController : ViewControllerBase() {
 
-    @Inject
+    @field:Inject
     lateinit var contextView: Any
 
-    @Inject
+    @field:Inject
     lateinit var controllerMap: IViewControllerMap
 
-    @Inject
+    @field:Inject
     lateinit var eventDispatcher:IEventDispatcher
 
     val eventMap: EventMap by lazy { EventMap(eventDispatcher) }
@@ -33,4 +34,8 @@ abstract class ViewController : ViewControllerBase() {
      * @return Boolean
      */
     protected fun dispatch(event: Event): Boolean = if (eventDispatcher.hasEventListener(event.type)) this.eventDispatcher.dispatchEvent(event) else false
+}
+
+fun ViewController.mapEvent(eventName:String, eventHandler:IEventListener){
+    eventMap.mapListener(eventDispatcher, eventName, eventHandler)
 }

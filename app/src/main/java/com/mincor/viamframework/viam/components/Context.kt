@@ -11,7 +11,7 @@ import com.mincor.viamframework.viam.injection.SupendReflector
 
 abstract class Context(override var contextView: Any? = null, var autoStartup: Boolean = true) : ContextBase() {
 
-    protected val injector: IInjector by lazy {  SuspendInjector(null) }
+    protected val injector: IInjector by lazy {  SuspendInjector() }
     protected val reflector: IReflector by lazy { SupendReflector() }
 
     protected val interactorMap: IInteractorMap by lazy { InteractorMap(this.eventDispatcher, this.createChildInjector(), reflector) }
@@ -39,11 +39,7 @@ abstract class Context(override var contextView: Any? = null, var autoStartup: B
     // ---------------------------------------------------------------------
     // Internal
     // ---------------------------------------------------------------------
-
-    /**
-     * private
-     */
-    protected fun checkAutoStartup() {
+    private fun checkAutoStartup() {
         if (this.autoStartup && this.contextView != null) {
             this.startup()
         }
@@ -71,23 +67,20 @@ abstract class Context(override var contextView: Any? = null, var autoStartup: B
 
     /**
      * Injection Mapping Hook
-     * Override this in your Framework context to change the default
-     * configuration
-     * Beware of collisions in your container
      */
-    protected fun mapInjections() {
-        this.injector.mapValue(IReflector::class, reflector, "")
-        this.injector.mapValue(IInjector::class, injector, "")
-        this.injector.mapValue(IEventDispatcher::class, eventDispatcher, "")
-        this.injector.mapValue(Any::class, contextView!!, "")
-        this.injector.mapValue(IInteractorMap::class, interactorMap, "")
-        this.injector.mapValue(IViewControllerMap::class, viewControllerMap,"")
-        this.injector.mapValue(IViewMap::class, viewMap, "")
-        this.injector.mapClass(IEventMap::class, EventMap::class, "")
+    private fun mapInjections() {
+        this.injector.mapValue(IReflector::class, reflector)
+        this.injector.mapValue(IInjector::class, injector)
+        this.injector.mapValue(IEventDispatcher::class, eventDispatcher)
+        this.injector.mapValue(Any::class, contextView!!)
+        this.injector.mapValue(IInteractorMap::class, interactorMap)
+        this.injector.mapValue(IViewControllerMap::class, viewControllerMap)
+        this.injector.mapValue(IViewMap::class, viewMap)
+        this.injector.mapClass(IEventMap::class, EventMap::class)
     }
 
     /**
-     * set your mvc relation
+     * set your relations
      * Add the view map
      * Link the View and View the corresponding Controller
      * Injection as an singleton, instantiate the singleton

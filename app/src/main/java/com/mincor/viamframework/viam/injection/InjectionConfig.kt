@@ -1,6 +1,7 @@
 package com.mincor.viamframework.viam.injection
 
 import android.util.Log
+import com.mincor.viamframework.viam.base.ext.className
 import com.mincor.viamframework.viam.injection.injectionresults.InjectionResult
 import kotlin.reflect.KClass
 
@@ -12,7 +13,7 @@ class InjectionConfig(var request: KClass<*>, var injectionName: String) {
             if (field != null && value != null) {
                 Log.w("InjectionConfig",
                         "Warning: Injector already has a rule for type \""
-                                + this.request.java.name
+                                + this.request.className()
                                 + "\", named \""
                                 + this.injectionName
                                 + "\".\n "

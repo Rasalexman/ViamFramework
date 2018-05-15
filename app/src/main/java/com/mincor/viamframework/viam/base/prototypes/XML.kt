@@ -29,11 +29,11 @@ class XML {
      * @return Corresponding to the name of the XML
      */
     fun getXMLByName(name: String): XML {
-        if (ArrayList::class.java.isInstance(this.child)) {
+        if (ArrayList::class.isInstance(this.child)) {
             val childList = this.child
-            for (i in childList.indices) {
-                if (childList[i].name == name)
-                    return childList[i]
+            val findedXML = childList.find { it.name == name}
+            if(findedXML != null){
+                return findedXML
             }
         }
         return XML()
@@ -48,7 +48,7 @@ class XML {
      */
     fun children(): XMLList {
         var result = XMLList()
-        if (XMLList::class.java.isInstance(this.child)) {
+        if (XMLList::class.isInstance(this.child)) {
             result = this.child
         }
         return result
@@ -66,11 +66,8 @@ class XML {
         val result = XMLList()
         val children = this.children()
         result.addAll(children)
-        for (i in children.indices) {
-            result.addAll(children[i].getAllChildren())
-        }
+        children.forEach { result.addAll(it.getAllChildren()) }
         return result
-
     }
 
     /**
@@ -93,17 +90,6 @@ class XML {
     fun getValue(key: String): String = this.prototype[key] ?: ""
 
     /**
-     * Set the XML name attribute
-     *
-     * @param name To set the name of the XML
-     * @return The `XML`
-     */
-    fun setName(name: String): XML {
-        this.name = name
-        return this
-    }
-
-    /**
      * According to the name list of child nodes
      *
      * @param name XML's name XML
@@ -111,7 +97,7 @@ class XML {
      */
     fun getXMLListByName(name: String): XMLList {
         val result = XMLList()
-        if (ArrayList::class.java.isInstance(this.child)) {
+        if (ArrayList::class.isInstance(this.child)) {
             val childList = this.child
             childList.filter { it.name == name }.mapTo(result, { it })
         }
@@ -128,7 +114,7 @@ class XML {
      */
     fun getXMLListByKey(key: String): XMLList {
         val result = XMLList()
-        if (ArrayList::class.java.isInstance(this.child)) {
+        if (ArrayList::class.isInstance(this.child)) {
             val childList = this.child
             childList.filter { it.prototype.containsKey(key) }.mapTo(result, { it })
         }
@@ -147,7 +133,7 @@ class XML {
      */
     fun getXMLListByNameAndKey(name: String, key: String): XMLList {
         val result = XMLList()
-        if (ArrayList::class.java.isInstance(this.child)) {
+        if (ArrayList::class.isInstance(this.child)) {
             val childList = this.child
             childList.filter { it.prototype.containsKey(key) && it.name == name }.mapTo(result, { it })
         }
@@ -166,7 +152,7 @@ class XML {
      */
     fun getXMLListByKeyValue(key: String, value: String): XMLList {
         val result = XMLList()
-        if (ArrayList::class.java.isInstance(this.child)) {
+        if (ArrayList::class.isInstance(this.child)) {
             val childList = this.child
             childList.filter { it.prototype.containsKey(key) && it.prototype[key] == value }.mapTo(result, { it })
         }
@@ -186,7 +172,7 @@ class XML {
      */
     fun getXMLListByNameAndKeyValue(name: String, key: String, value: String): XMLList {
         val result = XMLList()
-        if (ArrayList::class.java.isInstance(this.child)) {
+        if (ArrayList::class.isInstance(this.child)) {
             val childList = this.child
             childList.filter {
                 it.prototype.containsKey(key)

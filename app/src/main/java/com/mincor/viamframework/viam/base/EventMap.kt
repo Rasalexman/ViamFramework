@@ -38,7 +38,7 @@ class EventMap(var eventDispatcher: IEventDispatcher, private val listeners: Arr
     }
 
     override fun unmapListener(dispatcher: IEventDispatcher, type: String, listener: IEventListener, eventClass: KClass<*>?) {
-        val tempClass = eventClass ?: Event::class.java
+        val tempClass = eventClass ?: Event::class
         this.listeners.filter {
             it.dispatcher === dispatcher && it.type == type
                     && it.listener === listener

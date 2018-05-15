@@ -8,10 +8,10 @@ import com.mincor.viamframework.viam.core.Inject
 
 class CustomInteractor : Interactor() {
 
-    @Inject
+    @field:Inject
     lateinit var userActor:UserActor
 
-    @Inject
+    @field:Inject
     lateinit var event:Event
 
     override fun execute() {

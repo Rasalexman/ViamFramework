@@ -10,6 +10,14 @@ import kotlin.reflect.KClass
 
 class ConstructorInjectionPoint(node: XML, clazz: KClass<*>, injector: Injector) : MethodInjectionPoint(node, injector) {
 
+    override val methodName: String by lazy {
+        val nameArgs = node.parent?.getXMLListByNameAndKeyValue("metadata",
+                "name", Inject::class.className())?.getXMLListByNameAndKeyValue(
+                "arg", "key", "name")
+        this.gatherParameters(node, nameArgs?:arrayListOf())
+        "constructor"
+    }
+
     override fun applyInjection(target: Any, injector: Injector): Any? {
         if(target !is KClass<*>){
             return null
@@ -54,18 +62,4 @@ class ConstructorInjectionPoint(node: XML, clazz: KClass<*>, injector: Injector)
         }
         return null
     }
-
-    /**
-     * Initialize the injection
-     *
-     * @param node node
-     */
-    override fun initializeInjection(node: XML) {
-        val nameArgs = node.parent?.getXMLListByNameAndKeyValue("metadata",
-                "name", Inject::class.className())?.getXMLListByNameAndKeyValue(
-                "arg", "key", "name")
-        this.methodName = "constructor"
-        this.gatherParameters(node, nameArgs?:kotlin.collections.arrayListOf())
-    }
-
 }

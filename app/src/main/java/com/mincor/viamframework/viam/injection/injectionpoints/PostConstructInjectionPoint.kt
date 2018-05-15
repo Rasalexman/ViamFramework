@@ -8,7 +8,7 @@ import java.lang.reflect.Method
 
 class PostConstructInjectionPoint(node: XML, injector: Injector) : InjectionPoint(node, injector) {
 
-    private val methodName: String by lazy {
+    override val methodName: String by lazy {
         val orderArg = node.getXMLListByName("arg").getXMLListByKeyValue("key", "order")
         val methodNode = node.parent
         try {

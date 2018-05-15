@@ -2,6 +2,7 @@ package com.mincor.viamframework.viam.base.ext
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.superclasses
 
@@ -50,7 +51,7 @@ fun KClass<*>.getSuperClasses(): MutableList<KClass<*>> = if (this.superclasses.
     superClass.getSuperClasses().addAndReturn(superClass)
 }
 
-
+inline fun <reified T:Any> inject() = T::class.createInstance()
 
 /**
  * Get a collection of all the implementation of the interface

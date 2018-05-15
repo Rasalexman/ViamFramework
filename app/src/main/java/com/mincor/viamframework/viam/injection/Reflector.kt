@@ -59,7 +59,7 @@ abstract class Reflector : IReflector {
      */
     override fun getFullyQualifiedClassName(value: Any, replaceColons: Boolean): String {
         val fullyQualifiedClassName: String
-        if (String::class.java.isInstance(value)) {
+        if (String::class.isInstance(value)) {
             fullyQualifiedClassName = value as String
 
             /*

@@ -1,4 +1,4 @@
-package com.mincor.viamframework.viam
+package com.mincor.viamframework
 
 import com.mincor.viamframework.MainActivity
 import com.mincor.viamframework.example.controllers.MainController

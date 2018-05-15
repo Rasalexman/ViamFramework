@@ -6,11 +6,9 @@ import com.mincor.viamframework.viam.base.ext.getQualifiedClassName
 import com.mincor.viamframework.viam.base.ext.getSuperClasses
 import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.base.prototypes.XMLList
-import kotlin.properties.Delegates
 import kotlin.reflect.KClass
-import kotlin.reflect.full.declaredMemberFunctions
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.kotlinProperty
+import kotlin.reflect.full.functions
+import kotlin.reflect.full.memberProperties
 
 object Base {
 
@@ -44,9 +42,9 @@ object Base {
         /********************************* Interface  */
         val implementsInterfaces = clazz.getImplementsInterfaces()
         /********************************* FIELDS  */
-        val fields = clazz.members
+        val fields = clazz.java.fields
         /********************************* METHODS  */
-        val methods = clazz.java.methods
+        val methods = clazz.functions
         /********************************* Constructors  */
         val constructors = clazz.constructors
 
@@ -130,7 +128,7 @@ object Base {
             factoryXml.child.add(fieldXml)
             fieldXml.name = "variable"
             fieldXml.prototype["name"] = field.name
-            fieldXml.prototype["type"] = field.returnType.toString()
+            fieldXml.prototype["type"] = field.type.name
             fieldXml.parent = factoryXml
             val ans = field.annotations.toList()
 
@@ -156,8 +154,6 @@ object Base {
             factoryXml.child.add(methodXml)
             methodXml.name = "method"
             methodXml.prototype["name"] = method.name
-            methodXml.prototype["declaredBy"] = method.getQualifiedClassName()//:method.javaClass.name
-            methodXml.prototype["returnType"] = method.returnType.toString()
             methodXml.parent = factoryXml
             val parameterTypes = method.typeParameters
             val ans = method.annotations.toList()

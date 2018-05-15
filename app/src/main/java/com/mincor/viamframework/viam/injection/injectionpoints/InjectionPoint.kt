@@ -4,10 +4,9 @@ import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.injection.Injector
 import kotlin.reflect.KClass
 
-open class InjectionPoint(node: XML, injector: Injector?) {
-    init {
-        this.initializeInjection(node)
-    }
+abstract class InjectionPoint(node: XML, injector: Injector?) {
+
+    abstract val methodName:String
 
     /**
      * Apply the injection
@@ -19,10 +18,4 @@ open class InjectionPoint(node: XML, injector: Injector?) {
     open fun applyInjection(target: Any, injector: Injector): Any? {
         return target
     }
-
-    /*******************************************************************************************
-     * protected methods *
-     */
-    protected open fun initializeInjection(node: XML) {}
-
 }

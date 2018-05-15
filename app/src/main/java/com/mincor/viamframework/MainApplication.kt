@@ -1,6 +1,5 @@
 package com.mincor.viamframework
 
-import com.mincor.viamframework.viam.MainContext
 import com.mincor.viamframework.viam.views.ViamApplication
 
 class MainApplication : ViamApplication() {
