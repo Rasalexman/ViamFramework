@@ -1,6 +1,7 @@
 package com.mincor.viamframework.viam.injection
 
 import com.mincor.viamframework.viam.base.Base
+import com.mincor.viamframework.viam.base.ext.getQualifiedClassName
 import com.mincor.viamframework.viam.core.IReflector
 import kotlin.reflect.KClass
 
@@ -38,7 +39,7 @@ abstract class Reflector : IReflector {
         val factoryDescription = Base.describeType(actualClass).getXMLByName("factory")
         val children = factoryDescription.children()
         children.forEach {
-            if ((it.name == "implementsInterface" || it.name == "extendsClass") && it.getValue("type") == Base.getQualifiedClassName(superclass)) {
+            if ((it.name == "implementsInterface" || it.name == "extendsClass") && it.getValue("type") == superclass.getQualifiedClassName()) {
                 return true
             }
         }
@@ -69,7 +70,7 @@ abstract class Reflector : IReflector {
                 return if (lastDotIndex == -1) fullyQualifiedClassName else fullyQualifiedClassName.substring(0, lastDotIndex)+ "::"+ fullyQualifiedClassName.substring(lastDotIndex + 1)
             }
         } else {
-            fullyQualifiedClassName = Base.getQualifiedClassName(value)
+            fullyQualifiedClassName = value.getQualifiedClassName()
         }
         return if (replaceColons)
             fullyQualifiedClassName.replace("::", ".")

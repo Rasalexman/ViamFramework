@@ -4,20 +4,21 @@ import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.injection.InjectionConfig
 import com.mincor.viamframework.viam.injection.Injector
 import com.mincor.viamframework.viam.injection.InjectorError
+import kotlin.reflect.KClass
 
 class PropertyInjectionPoint(node: XML, injector: Injector?) : InjectionPoint(node, null) {
 
     /*******************************************************************************************
      * private properties *
      */
-    private var _propertyName: String? = null
-    private var _propertyType: String? = null
-    private var _injectionName: String? = null
+    private var propertyName: String? = null
+    private var propertyType: String? = null
+    private var injectionName: String? = null
 
     override fun applyInjection(target: Any, injector: Injector): Any {
         val injectionConfig: InjectionConfig
         try {
-            injectionConfig = injector.getMapping(Class.forName(this._propertyType).kotlin, this._injectionName?:"")
+            injectionConfig = injector.getMapping(Class.forName(this.propertyType).kotlin, this.injectionName?:"")
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
             return target
@@ -25,12 +26,11 @@ class PropertyInjectionPoint(node: XML, injector: Injector?) : InjectionPoint(no
 
         val injection = injectionConfig.getResponse(injector) ?: throw InjectorError(
                 "Injector is missing a rule to handle injection into property \""
-                        + this._propertyName + "\" of object \"" + target
-                        + "\". Target dependency: \"" + this._propertyType
-                        + "\", named \"" + this._injectionName + "\"")
+                        + this.propertyName + "\" of object \"" + target
+                        + "\". Target dependency: \"" + this.propertyType
+                        + "\", named \"" + this.injectionName + "\"")
         try {
-            target.javaClass.getField(this._propertyName!!)
-                    .set(target, injection)
+            target.javaClass.getField(this.propertyName!!).set(target, injection)
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         } catch (e: IllegalArgumentException) {
@@ -46,9 +46,9 @@ class PropertyInjectionPoint(node: XML, injector: Injector?) : InjectionPoint(no
      * protected methods *
      */
     override fun initializeInjection(node: XML) {
-        this._propertyType = node.parent!!.getValue("type")
-        this._propertyName = node.parent!!.getValue("name")
-        this._injectionName = node.getXMLByName("arg").getValue("value")
+        this.propertyType = node.parent!!.getValue("type")
+        this.propertyName = node.parent!!.getValue("name")
+        this.injectionName = node.getXMLByName("arg").getValue("value")
     }
 
 }

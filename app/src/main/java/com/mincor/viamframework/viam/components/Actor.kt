@@ -9,7 +9,7 @@ import kotlin.reflect.KProperty
 
 open class Actor {
 
-    @field:Inject
+    @Inject
     lateinit var eventDispatcher:IEventDispatcher
 
     val myLazyInitializer:IEventDispatcher by inject()

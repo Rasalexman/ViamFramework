@@ -9,13 +9,13 @@ import com.mincor.viamframework.viam.core.Inject
 
 abstract class ViewController : ViewControllerBase() {
 
-    @field:Inject
+    @Inject
     lateinit var contextView: Any
 
-    @field:Inject
+    @Inject
     lateinit var controllerMap: IViewControllerMap
 
-    @field:Inject
+    @Inject
     lateinit var eventDispatcher:IEventDispatcher
 
     val eventMap: EventMap by lazy { EventMap(eventDispatcher) }

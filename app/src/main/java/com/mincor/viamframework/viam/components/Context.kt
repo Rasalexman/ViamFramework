@@ -9,18 +9,18 @@ import com.mincor.viamframework.viam.core.IInjector
 import com.mincor.viamframework.viam.injection.SupendReflector
 
 
-abstract class Context(override var contextView: Any? = null, private var autoStartup: Boolean = true) : ContextBase() {
+abstract class Context(override var contextView: Any? = null, var autoStartup: Boolean = true) : ContextBase() {
 
-    protected var injector: IInjector = SuspendInjector(null)
-    protected var reflector: IReflector = SupendReflector()
+    protected val injector: IInjector by lazy {  SuspendInjector(null) }
+    protected val reflector: IReflector by lazy { SupendReflector() }
 
-    protected var interactorMap: IInteractorMap = InteractorMap(this.eventDispatcher, this.createChildInjector(), reflector)
-    protected var viewControllerMap: IViewControllerMap = ViewControllerMap(reflector, contextView, this.createChildInjector())
+    protected val interactorMap: IInteractorMap by lazy { InteractorMap(this.eventDispatcher, this.createChildInjector(), reflector) }
+    protected val viewControllerMap: IViewControllerMap by lazy { ViewControllerMap(reflector, contextView, this.createChildInjector()) }
 
     /**
      * private
      */
-    protected var viewMap: IViewMap = ViewMap(contextView!!, injector)
+    private val viewMap: IViewMap by lazy { ViewMap(contextView!!, injector) }
 
     init {
         mapInjections()

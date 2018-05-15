@@ -1,5 +1,6 @@
 package com.mincor.viamframework.viam.core
 
+import com.mincor.viamframework.viam.injection.InjectionConfig
 import kotlin.reflect.KClass
 
 interface IInjector {
@@ -12,7 +13,7 @@ interface IInjector {
 
     fun mapSingletonOf(mapped:KClass<*>, singleOf:KClass<*>, named:String):Any
 
-    fun mapRule(mapped:KClass<*>, useRule:Any, named:String):Any
+    fun mapRule(mapped:KClass<*>, useRule: InjectionConfig, named:String):Any
 
     fun injectInto(target: Any?)
 

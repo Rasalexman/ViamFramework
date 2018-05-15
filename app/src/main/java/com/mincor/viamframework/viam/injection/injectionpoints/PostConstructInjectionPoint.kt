@@ -8,10 +8,19 @@ import java.lang.reflect.Method
 
 class PostConstructInjectionPoint(node: XML, injector: Injector) : InjectionPoint(node, injector) {
 
-    private lateinit var methodName: String
+    private val methodName: String by lazy {
+        val orderArg = node.getXMLListByName("arg").getXMLListByKeyValue("key", "order")
+        val methodNode = node.parent
+        try {
+            this.order = orderArg[0].getValue("value").toInt()
+        } catch (e: Exception) {
+            this.order = 0
+        }
+        methodNode!!.getValue("name")
+    }
 
     /**
-     * Get the PostConstructInjectionPoint.this.orderValue
+     * Get the PostConstructInjectionPoint.orderValue
      *
      * @return int
      */
@@ -19,7 +28,8 @@ class PostConstructInjectionPoint(node: XML, injector: Injector) : InjectionPoin
 
     override fun applyInjection(target: Any, injector: Injector): Any {
         try {
-            ((target as Map<String, Any>)[this.methodName] as Method).invoke(target)
+            val method = target.javaClass.getDeclaredMethod(this.methodName)
+            method?.invoke(target)
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         } catch (e: IllegalArgumentException) {
@@ -30,20 +40,4 @@ class PostConstructInjectionPoint(node: XML, injector: Injector) : InjectionPoin
 
         return target
     }
-
-    /*******************************************************************************************
-     * protected methods *
-     */
-    override fun initializeInjection(node: XML) {
-        val orderArg = node.getXMLListByName("arg").getXMLListByKeyValue("key", "order")
-        val methodNode = node.parent
-        try {
-            this.order = Integer.parseInt(orderArg[0]
-                    .getValue("value"))
-        } catch (e: Exception) {
-            this.order = 0
-        }
-        this.methodName = methodNode!!.getValue("name")
-    }
-
 }

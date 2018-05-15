@@ -1,5 +1,6 @@
 package com.mincor.viamframework.viam.injection
 
+import com.mincor.viamframework.viam.base.ext.className
 import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.components.Actor
 import com.mincor.viamframework.viam.components.Interactor
@@ -24,14 +25,14 @@ class SuspendInjector(xmlConfig: XML?) : Injector(getConstructParam(xmlConfig)),
                     .appendChild(
                             XML()
                                     .setName("type")
-                                    .setValue("name", Interactor::class.java.name)
+                                    .setValue("name", Interactor::class.className())
                                     .appendChild(
                                             XML().setName("field").setValue(
                                                     "name", "eventDispatcher")))
                     .appendChild(
                             XML()
                                     .setName("type")
-                                    .setValue("name", Actor::class.java.name)
+                                    .setValue("name", Actor::class.className())
                                     .appendChild(
                                             XML().setName("field").setValue(
                                                     "name", "contextView"))
@@ -50,7 +51,7 @@ class SuspendInjector(xmlConfig: XML?) : Injector(getConstructParam(xmlConfig)),
                     .appendChild(
                             XML()
                                     .setName("type")
-                                    .setValue("name", ViewController::class.java.name)
+                                    .setValue("name", ViewController::class.className())
                                     .appendChild(
                                             XML().setName("field").setValue(
                                                     "name", "contextView"))

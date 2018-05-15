@@ -12,22 +12,22 @@ abstract class ViamActivity : AppCompatActivity() {
          * inject the activity's controller when it on create
          */
         try {
-            (this.application as IApplication).mvcContext.injectViewController(this)
-            EventDispatcher.setDispatcher("${this.javaClass.simpleName}${this.hashCode()}")
+            (this.application as IApplication).viamContext.injectViewController(this)
+            EventDispatcher.setDispatcher("${this::class.qualifiedName}${this.hashCode()}")
         } catch (e: Exception) {
             e.printStackTrace()
-            throw RuntimeException("Please create a custom ViamApplication and fill in the getMvcContextInstance() method")
+            throw RuntimeException("Please create a custom ViamApplication and fill in the getViamContextInstance() method")
         }
 
     }
 
     override fun onDestroy() {
         try {
-            EventDispatcher.removeDispatcher("${this.javaClass.simpleName}${this.hashCode()}")
-            (this.application as IApplication).mvcContext.removeViewController(this)
+            EventDispatcher.removeDispatcher("${this::class.qualifiedName}${this.hashCode()}")
+            (this.application as IApplication).viamContext.removeViewController(this)
         } catch (e: Exception) {
             e.printStackTrace()
-            throw RuntimeException("Please create a custom ViamApplication and fill in the getMvcContextInstance() method")
+            throw RuntimeException("Please create a custom ViamApplication and fill in the getViamContextInstance() method")
         }
 
         super.onDestroy()

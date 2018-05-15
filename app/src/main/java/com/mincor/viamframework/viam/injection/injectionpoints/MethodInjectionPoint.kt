@@ -25,7 +25,7 @@ open class MethodInjectionPoint(node: XML, injector: Injector) : InjectionPoint(
             val typeList = parameters[0] as List<KClass<*>>
             val typeClasses = arrayOfNulls<KClass<*>>(typeList.size)
             typeList.toTypedArray()
-            method = target.javaClass.getMethod(this.methodName, typeClasses::class.java)
+            method = target.javaClass.getMethod(this.methodName, typeClasses.javaClass)
         } catch (e: NoSuchMethodException) {
             e.printStackTrace()
             return target

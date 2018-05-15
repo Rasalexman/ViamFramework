@@ -50,7 +50,7 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
          * graph
          */
         this.contextView?.let {
-            if (autoCreate && viewClassName == this.contextView!!.javaClass.name) {
+            if (autoCreate && viewClassName == it::class.qualifiedName) {
                 this.createControllerUsing(view, viewClassName, config)
             }
         }
@@ -169,7 +169,7 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
             this.controllerMarkedForRemoval.remove(viewKey)
             return
         }
-        val viewClassName = e.javaClass.name
+        val viewClassName = e::class.qualifiedName?:""
         val config = this.mappingConfigByViewClassName[viewClassName]
         config?.let {
             if (it.autoCreate) {

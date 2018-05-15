@@ -8,7 +8,7 @@ import com.mincor.viamframework.viam.core.Inject
 
 class UserActor : Actor() {
 
-    @field:Inject
+    @Inject
     lateinit var user:User
 
     fun login(){

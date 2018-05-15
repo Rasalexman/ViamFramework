@@ -4,10 +4,10 @@ import com.mincor.viamframework.viam.injection.Injector
 import kotlin.reflect.KClass
 
 class InjectSingletonResult(private val responseType: KClass<*>) : InjectionResult() {
-    private var m_response: Any? = null
+    private var response: Any? = null
 
     override fun getResponse(injector: Injector): Any {
-        this.m_response = this.m_response ?: injector.instantiate(this.responseType)
-        return this.m_response!!
+        this.response = this.response ?: injector.instantiate(this.responseType)
+        return this.response!!
     }
 }
