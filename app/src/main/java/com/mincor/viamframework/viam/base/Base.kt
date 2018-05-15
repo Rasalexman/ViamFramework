@@ -8,7 +8,6 @@ import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.base.prototypes.XMLList
 import kotlin.reflect.KClass
 import kotlin.reflect.full.functions
-import kotlin.reflect.full.memberProperties
 
 object Base {
 
