@@ -1,2 +1,6 @@
 # ViamFramework
-This is an evolution of MVVM framework 
+VIAM:
+- View
+- Interactor
+- ACTOR
+- MODEL
