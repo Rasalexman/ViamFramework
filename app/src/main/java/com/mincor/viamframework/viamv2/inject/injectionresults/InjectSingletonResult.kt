@@ -1,10 +1,9 @@
-package com.mincor.viamframework.viam.injection.injectionresults
+package com.mincor.viamframework.viamv2.inject.injectionresults
 
 import com.mincor.viamframework.viam.injection.Injector
-import com.mincor.viamframework.viam.injection.injectionresults.InjectionResult
 import kotlin.reflect.KClass
 
-class InjectSingletonResult(private val responseType: KClass<*>) : InjectionResult() {
+class InjectSingletonResult(private val responseType: KClass<*>) : IInjectionResult {
     private var response: Any? = null
 
     override fun getResponse(injector: Injector): Any {

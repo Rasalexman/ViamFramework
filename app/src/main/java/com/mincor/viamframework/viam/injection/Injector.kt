@@ -10,6 +10,7 @@ import com.mincor.viamframework.viam.injection.injectionresults.InjectClassResul
 import com.mincor.viamframework.viam.injection.injectionresults.InjectOtherRuleResult
 import com.mincor.viamframework.viam.injection.injectionresults.InjectSingletonResult
 import com.mincor.viamframework.viam.injection.injectionresults.InjectValueResult
+import com.mincor.viamframework.viam.injection.injectionpoints.InjectionPoint
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -183,8 +184,8 @@ open class Injector {
 
         if (postConstructMethodPoints.isNotEmpty()) {
             postConstructMethodPoints.sortWith(Comparator { o1, o2 ->
-                val order0 = (o1 as PostConstructInjectionPoint).order
-                val order1 = (o2 as PostConstructInjectionPoint).order
+                val order0 = (o1 as com.mincor.viamframework.viamv2.inject.injectionpoints.PostConstructInjectionPoint).order
+                val order1 = (o2 as com.mincor.viamframework.viamv2.inject.injectionpoints.PostConstructInjectionPoint).order
                 when {
                     order0 > order1 -> 1
                     order0 == order1 -> 0

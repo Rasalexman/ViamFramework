@@ -2,7 +2,6 @@ package com.mincor.viamframework.viam.injection.injectionpoints
 
 import com.mincor.viamframework.viam.base.prototypes.XML
 import com.mincor.viamframework.viam.injection.Injector
-import kotlin.reflect.KClass
 
 abstract class InjectionPoint(node: XML, injector: Injector?) {
 
