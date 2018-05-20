@@ -11,6 +11,7 @@ import com.mincor.viamframework.viam.injection.injectionresults.InjectOtherRuleR
 import com.mincor.viamframework.viam.injection.injectionresults.InjectSingletonResult
 import com.mincor.viamframework.viam.injection.injectionresults.InjectValueResult
 import com.mincor.viamframework.viam.injection.injectionpoints.InjectionPoint
+import com.mincor.viamframework.viamv2.inject.data.Config
 import java.util.*
 import kotlin.reflect.KClass
 

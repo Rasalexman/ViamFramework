@@ -1,9 +1,13 @@
 package com.mincor.viamframework.viam.base
 
-import com.mincor.viamframework.viam.core.*
 import com.mincor.viamframework.viam.base.events.Event
 import com.mincor.viamframework.viam.base.ext.className
+import com.mincor.viamframework.viam.base.ext.getClass
 import com.mincor.viamframework.viam.components.Interactor
+import com.mincor.viamframework.viam.core.IEventDispatcher
+import com.mincor.viamframework.viam.core.IInjector
+import com.mincor.viamframework.viam.core.IInteractorMap
+import com.mincor.viamframework.viam.core.IListener
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -19,11 +23,7 @@ class InteractorMap(
         /**
          * The `IInjector` to inject with
          */
-        private val injector: IInjector,
-        /**
-         * The `IReflector` to reflect with
-         */
-        private val reflector: IReflector) : IInteractorMap {
+        private val injector: IInjector) : IInteractorMap {
 
     /**
      * Internal
@@ -55,7 +55,7 @@ class InteractorMap(
         this.verifyInteractorClass(interactorClass)
 
         if (payload != null || payloadClass != null) {
-            val tempPayloadClass = payloadClass ?: this.reflector.getClass(payload!!)
+            val tempPayloadClass = payloadClass ?: getClass(payload!!)
             if (Event::class.isInstance(payload) && tempPayloadClass != Event::class) {
                 payload?.let {
                     this.injector.mapValue(Event::class, it, "")

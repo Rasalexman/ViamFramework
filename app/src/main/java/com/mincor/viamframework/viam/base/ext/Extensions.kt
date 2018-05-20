@@ -1,5 +1,6 @@
 package com.mincor.viamframework.viam.base.ext
 
+import com.mincor.viamframework.viam.base.Base
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.createInstance
@@ -22,6 +23,60 @@ fun <T:Any>MutableList<T>.addAndReturn(toAdd:T):MutableList<T>{
 fun <T> factoryCreator(factory: () -> T): T {
     val x: T = factory()
     return x
+}
+
+fun classExtendsOrImplements(classOrClassName: Any, superclass: KClass<*>): Boolean {
+    var actualClass: KClass<*>? = null
+    if (classOrClassName is KClass<*>) {
+        actualClass = classOrClassName
+    } else if (classOrClassName is String) {
+        try {
+            actualClass = Class.forName(classOrClassName).kotlin
+        } catch (e: ClassNotFoundException) {
+            e.printStackTrace()
+            throw Error("The class name " + classOrClassName
+                    + " is not valid because of " + e + "\n"
+                    + e.stackTrace)
+        }
+
+    }
+    if (actualClass == null) {
+        throw Error("The parameter classOrClassName must be a valid Class " + "instance or fully qualified class name.")
+    }
+    if (actualClass == superclass)
+        return true
+
+    val factoryDescription = Base.describeType(actualClass).getXMLByName("factory")
+    val children = factoryDescription.children()
+    children.forEach {
+        if ((it.name == "implementsInterface" || it.name == "extendsClass") && it.getValue("type") == superclass.getQualifiedClassName()) {
+            return true
+        }
+    }
+    return false
+}
+
+fun getClass(value: Any): KClass<*> = value as? KClass<*> ?: value.javaClass.kotlin
+
+fun getFullyQualifiedClassName(value: Any, replaceColons: Boolean): String {
+    val fullyQualifiedClassName: String
+    if (String::class.isInstance(value)) {
+        fullyQualifiedClassName = value as String
+
+        /*
+         * Add colons if missing and desired.
+         */
+        if ((!replaceColons) && !fullyQualifiedClassName.contains("::")) {
+            val lastDotIndex = fullyQualifiedClassName.lastIndexOf(".")
+            return if (lastDotIndex == -1) fullyQualifiedClassName else fullyQualifiedClassName.substring(0, lastDotIndex)+ "::"+ fullyQualifiedClassName.substring(lastDotIndex + 1)
+        }
+    } else {
+        fullyQualifiedClassName = value.getQualifiedClassName()
+    }
+    return if (replaceColons)
+        fullyQualifiedClassName.replace("::", ".")
+    else
+        fullyQualifiedClassName
 }
 
 /**

@@ -6,16 +6,14 @@ import com.mincor.viamframework.viam.base.events.Event
 import com.mincor.viamframework.viam.base.events.EventTypes
 import com.mincor.viamframework.viam.core.*
 import com.mincor.viamframework.viam.core.IInjector
-import com.mincor.viamframework.viam.injection.SupendReflector
 
 
 abstract class Context(override var contextView: Any? = null, var autoStartup: Boolean = true) : ContextBase() {
 
     protected val injector: IInjector by lazy {  SuspendInjector() }
-    protected val reflector: IReflector by lazy { SupendReflector() }
 
-    protected val interactorMap: IInteractorMap by lazy { InteractorMap(this.eventDispatcher, this.createChildInjector(), reflector) }
-    protected val viewControllerMap: IViewControllerMap by lazy { ViewControllerMap(reflector, contextView, this.createChildInjector()) }
+    protected val interactorMap: IInteractorMap by lazy { InteractorMap(this.eventDispatcher, this.createChildInjector()) }
+    protected val viewControllerMap: IViewControllerMap by lazy { ViewControllerMap(contextView, this.createChildInjector()) }
 
     /**
      * private
@@ -69,7 +67,6 @@ abstract class Context(override var contextView: Any? = null, var autoStartup: B
      * Injection Mapping Hook
      */
     private fun mapInjections() {
-        this.injector.mapValue(IReflector::class, reflector)
         this.injector.mapValue(IInjector::class, injector)
         this.injector.mapValue(IEventDispatcher::class, eventDispatcher)
         this.injector.mapValue(Any::class, contextView!!)

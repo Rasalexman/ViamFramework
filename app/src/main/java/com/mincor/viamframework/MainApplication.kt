@@ -1,10 +1,11 @@
 package com.mincor.viamframework
 
-import com.mincor.viamframework.viam.views.ViamApplication
+import android.app.Application
+import com.mincor.viamframework.viamv2.IViamApplication
 
-class MainApplication : ViamApplication() {
+class MainApplication : Application() , IViamApplication {
 
-    override val viamContextInstance = MainContext(this, true)
+   override val viamContext = MyViamContext(this)
 
     override fun onCreate() {
         super.onCreate()

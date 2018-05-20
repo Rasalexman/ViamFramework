@@ -15,7 +15,7 @@ abstract class InjectionPoint(node: XML, injector: IInjector?) {
      * @param injector injector
      * @return Object
      */
-    open fun <T : KClass<*>>applyInjection(target: T?, injector: IInjector): T? {
+    open fun applyInjection(target: Any?, injector: IInjector): Any? {
         return target
     }
 }

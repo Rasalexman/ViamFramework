@@ -1,13 +1,15 @@
 package com.mincor.viamframework.viam.base
 
+import com.mincor.viamframework.viam.base.ext.classExtendsOrImplements
 import com.mincor.viamframework.viam.base.ext.className
+import com.mincor.viamframework.viam.base.ext.getClass
+import com.mincor.viamframework.viam.base.ext.getFullyQualifiedClassName
 import com.mincor.viamframework.viam.core.IInjector
-import com.mincor.viamframework.viam.core.IReflector
 import com.mincor.viamframework.viam.core.IViewController
 import com.mincor.viamframework.viam.core.IViewControllerMap
 import kotlin.reflect.KClass
 
-class ViewControllerMap(private val reflector: IReflector, override var contextView: Any?, injector: IInjector) : ViewMapBase(injector), IViewControllerMap {
+class ViewControllerMap(override var contextView: Any?, injector: IInjector) : ViewMapBase(injector), IViewControllerMap {
 
     private var controllerByView = hashMapOf<String, IViewController?>()
     private var mappingConfigByView = hashMapOf<String, MappingConfig?>()
@@ -18,12 +20,12 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
     override var isEnabled: Boolean = true
 
     override fun mapView(view: KClass<*>, controller: KClass<out IViewController>, injectViewAs: Any?, autoCreate: Boolean, autoRemove: Boolean) {
-        val viewClassName = this.reflector.getFullyQualifiedClassName(view, false)
+        val viewClassName = getFullyQualifiedClassName(view, false)
         if (this.mappingConfigByViewClassName[viewClassName] != null) {
             throw ContextError("${ContextError.E_MEDIATORMAP_OVR} - $controller")
         }
 
-        if (!this.reflector.classExtendsOrImplements(controller, IViewController::class)) {
+        if (!classExtendsOrImplements(controller, IViewController::class)) {
             throw ContextError("${ContextError.E_MEDIATORMAP_NOIMPL} - $controller")
         }
 
@@ -58,7 +60,7 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
     }
 
     override fun unmapView(view: Any) {
-        val viewClassName = this.reflector.getFullyQualifiedClassName(view, false)
+        val viewClassName = getFullyQualifiedClassName(view, false)
         val config = this.mappingConfigByViewClassName[viewClassName]
         config?.let {
             if (it.autoCreate || it.autoRemove) {
@@ -80,7 +82,7 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
             this.createControllerUsing(viewComponent, "", null)
 
     override fun registerController(viewComponent: Any, viewController: IViewController) {
-        val controllerClass = this.reflector.getClass(viewController)
+        val controllerClass = getClass(viewController)
         if (this.injector.hasMapping(controllerClass, "")) {
             this.injector.unmap(controllerClass, "")
         }
@@ -100,7 +102,7 @@ class ViewControllerMap(private val reflector: IReflector, override var contextV
     override fun removeController(controller: IViewController?): IViewController? {
         controller?.let {
             val viewComponent = controller.view
-            val mediatorClass = this.reflector.getClass(controller)
+            val mediatorClass = getClass(controller)
 
             viewComponent?.let {
                 val viewKey = "${it.hashCode()}"

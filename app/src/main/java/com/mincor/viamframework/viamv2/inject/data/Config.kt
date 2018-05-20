@@ -1,9 +1,10 @@
 package com.mincor.viamframework.viamv2.inject.data
 
 import android.util.Log
+import com.mincor.viamframework.viamv2.inject.getAncestorMapping
 import com.mincor.viamframework.viamv2.inject.injectionresults.IInjectionResult
 
-class Config(var request: Any, var injectionName: String){
+class Config(var request: Any, var injectionName: String) {
     var result: IInjectionResult? = null
         set(value) {
             if (field != null && value != null) {
@@ -19,4 +20,16 @@ class Config(var request: Any, var injectionName: String){
             }
             field = value
         }
+
+    /**
+     * Determine whether there was a response
+     *
+     * @param injector injector
+     * @return Boolean
+     */
+    fun hasResponse(injector: com.mincor.viamframework.viamv2.inject.Injector): Boolean {
+        if (this.result != null) return true
+        val parentConfig = injector.getAncestorMapping(this.request, this.injectionName)
+        return parentConfig != null
+    }
 }
